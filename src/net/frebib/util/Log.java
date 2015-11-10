@@ -1,10 +1,9 @@
-package net.frebib.sscmailclient.util;
+package net.frebib.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.nio.file.Path;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,7 +26,7 @@ public class Log implements Thread.UncaughtExceptionHandler {
             new File(path).getParentFile().mkdirs();
 
             System.setProperty("java.util.logging.SimpleFormatter.format",
-                    "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS [%4$s]\t> %5$s%6$s%n");
+                    "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS [%4$s] %5$s%6$s%n");
             fh = new FileHandler(path);
             fh.setFormatter(new SimpleFormatter());
 
@@ -51,22 +50,24 @@ public class Log implements Thread.UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable t) {
         String exceptionPadding = "~~~~~~~~~~~~~~~~~~~~~~~~~~";
-        logger.log(EXCEPTION_LEVEL, exceptionPadding +
-                                    t.getStackTrace() +
-                                    exceptionPadding,
-                                    t
-        );
+        logger.log(EXCEPTION_LEVEL,
+                addThreadName(exceptionPadding + t.getStackTrace() + exceptionPadding), t);
     }
 
-    public void finest(String msg)  { logger.finest(msg); }
-    public void finer(String msg)   { logger.finer(msg); }
-    public void fine(String msg)    { logger.fine(msg); }
-    public void info(String msg)    { logger.info(msg); }
-    public void warning(String msg) { logger.log(Level.WARNING, msg); }
-    public void severe(String msg)  { logger.log(Level.SEVERE, msg); }
-    public void error(Exception e)  {
+    private String addThreadName(String msg) {
+        return "[" + Thread.currentThread().getName() + "]\t> " + msg;
+    }
+
+    public void finest(String msg) { logger.finest(addThreadName(msg)); }
+    public void finer(String msg) { logger.finer(addThreadName(msg)); }
+    public void fine(String msg) { logger.fine(addThreadName(msg)); }
+    public void info(String msg) { logger.info(addThreadName(msg)); }
+    public void warning(String msg) { logger.log(Level.WARNING, addThreadName(msg)); }
+    public void severe(String msg) { logger.log(Level.SEVERE, addThreadName(msg)); }
+    public void exception(Exception e) { error(e); }
+    public void error(Exception e) {
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
-        logger.log(EXCEPTION_LEVEL, sw.toString());
+        logger.log(EXCEPTION_LEVEL, addThreadName(sw.toString()));
     }
 }
