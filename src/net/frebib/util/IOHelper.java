@@ -15,6 +15,15 @@ public class IOHelper {
         is.close();
         return props;
     }
+    public static void saveProperties(Properties props, String path) throws IOException {
+        if (props.isEmpty()) return;
+
+        // Make directory path if it doesn't exist
+        new File(path).getParentFile().mkdirs();
+
+        OutputStream os = new FileOutputStream(new File(path));
+        props.store(os, null);
+    }
     public static String loadFile(String path) throws IOException {
         byte[] encoded = Files.readAllBytes(Paths.get(path));
         return new String(encoded, "UTF-8");
