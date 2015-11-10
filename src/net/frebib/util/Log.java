@@ -66,6 +66,9 @@ public class Log implements Thread.UncaughtExceptionHandler {
     public void severe(String msg) { logger.log(Level.SEVERE, addThreadName(msg)); }
     public void exception(Exception e) { error(e); }
     public void error(Exception e) {
+        // Also print to the console
+        e.printStackTrace();
+
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         logger.log(EXCEPTION_LEVEL, addThreadName(sw.toString()));
