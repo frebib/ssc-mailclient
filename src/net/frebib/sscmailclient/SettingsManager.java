@@ -35,9 +35,9 @@ public class SettingsManager {
     }
 
     public static Properties loadAccount(String accountName) throws IOException {
-        return IOHelper.loadProperties(ACCOUNTS_DIR + accountName + ".properties");
+        return IOHelper.loadProperties(ACCOUNTS_DIR + accountName + EXT);
     }
     public static void saveAccount(Properties account, String accountName) throws IOException {
-        IOHelper.saveProperties(account, ACCOUNTS_DIR + accountName + ".propertie");
+        IOHelper.saveProperties(account, ACCOUNTS_DIR + accountName + EXT);
     }
 }
