@@ -59,7 +59,32 @@ public class Email {
         return recent;
     }
 
-    private Content getContent(Message msg) {
+    public void setAnswered(boolean answered) {
+        this.answered = answered;
+        try {
+            msg.setFlag(Flags.Flag.ANSWERED, answered);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+    }
+    public void setRead(boolean read) {
+        this.read = read;
+        try {
+            msg.setFlag(Flags.Flag.SEEN, read);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+    }
+    public void setRecent(boolean recent) {
+        this.recent = recent;
+        try {
+            msg.setFlag(Flags.Flag.RECENT, recent);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+    }
+
+    private Content getContent(Part part) {
         try {
             // Is a text/html message
             if (part.isMimeType("text/*")) {
