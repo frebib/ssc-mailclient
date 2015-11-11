@@ -1,7 +1,9 @@
 package net.frebib.sscmailclient;
 
 import javax.mail.*;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class Email {
     private Address from;
@@ -60,10 +62,10 @@ public class Email {
     private Content getContent(Message msg) {
         try {
             // Is a text/html message
-            if (msg.isMimeType("text/*")) {
-                return new TextContent(msg);
+            if (part.isMimeType("text/*")) {
+                return new TextContent(part);
             } else {
-                return new MultipartContent(msg);
+                return new MultipartContent(part);
             }
         } catch (MessagingException e) {
             e.printStackTrace();
@@ -74,20 +76,20 @@ public class Email {
     public interface Content {
         String getBody();
     }
-    public static class TextContent implements Content {
-        protected Message msg;
+    public class TextContent implements Content {
+        protected Part part;
         protected boolean downloaded = false;
         protected String body;
 
-        public TextContent(Message msg) {
-            this.msg = msg;
+        public TextContent(Part part) {
+            this.part = part;
         }
 
         public String getType() {
             try {
-                if (msg.isMimeType("text/html"))
+                if (part.isMimeType("text/html"))
                     return "text/html";
-                else if (msg.isMimeType("text/plain"))
+                else if (part.isMimeType("text/plain"))
                     return "text/plain";
                 else return null;
             } catch (MessagingException e) {
@@ -100,9 +102,8 @@ public class Email {
         public String getBody() {
             try {
                 if (!downloaded) {
-                    MailClient.LOG.fine("Downloading content for message: "
-                            + msg.toString());
-                    body = (String) msg.getContent();
+                    downloaded = true;
+                    body = (String) Email.this.msg.getContent();
                 }
                 return body;
             } catch (Exception e) {
@@ -111,24 +112,32 @@ public class Email {
             return null;
         }
     }
-    public static class MultipartContent extends TextContent {
+    public class MultipartContent extends TextContent {
+        private List<Content> contents;
 
-        public MultipartContent(Message msg) {
-            super(msg);
+        public MultipartContent(Part part) {
+            super(part);
+            contents = new ArrayList<Content>();
         }
 
         @Override
         public String getBody() {
             try {
                 if (!downloaded) {
-                    MailClient.LOG.fine("Downloading content for message: "
-                            + msg.toString());
-
-                    Multipart mp = (Multipart) msg.getContent();
+                    downloaded = true;
+                    Multipart mp = (Multipart) part.getContent();
                     for (int i=0; i < mp.getCount(); i++) {
                         Part part = mp.getBodyPart(i);
+                        if (part.isMimeType("multipart/*")) {
+                            // Yay recursion :D
+                            Content subch = getContent(part);
+                            String txt = subch.getBody();
+                            if (txt != null)
+                                body += txt;
+
+                            contents.add(subch);
+                        }
                         if (part.isMimeType("text/*")) {
-                            MailClient.LOG.finer(Boolean.toString(part.getContent() instanceof String));
                             body = (String) part.getContent();
                             break;
                         }
