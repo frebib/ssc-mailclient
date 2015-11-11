@@ -17,7 +17,7 @@ public class MailClientView extends JPanel implements ListSelectionListener {
     private JSplitPane splitPane;
     private JList<Email> emailList;
     private EmailListModel listModel;
-    private JTextField emailPreview;
+    private JTextArea emailPreview;
     private JScrollPane leftScroll, rightScroll;
     private JButton btnCompose;
     private JTextFieldHint txtSearch;
@@ -45,7 +45,7 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         leftScroll = new JScrollPane(emailList);
         leftScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
-        emailPreview = new JTextField();
+        emailPreview = new JTextArea();
         rightScroll = new JScrollPane(emailPreview);
 
         splitPane = new JSplitPane();
