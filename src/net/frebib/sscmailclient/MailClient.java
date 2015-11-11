@@ -15,7 +15,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class MailClient {
-    public static final Log log = new Log(Level.FINER).setLogOutput(
+    public static final Log LOG = new Log(Level.FINER).setLogOutput(
             new SimpleDateFormat("'log/mailclient'yyyy-MM-dd hh-mm-ss'.log'")
             .format(new Date()));
 
@@ -37,7 +37,7 @@ public class MailClient {
         try {
             acc1 = SettingsManager.loadAccount("jxg415");
         } catch (IOException e) {
-            log.exception(e);
+            LOG.exception(e);
             return;
         }
 
@@ -48,22 +48,22 @@ public class MailClient {
 
 
         } catch (MessagingException e) {
-            log.exception(e);
+            LOG.exception(e);
             return;
         }
     }
 
     public static void main(String[] args) {
         Thread.currentThread().setName("MailClient");
-        log.info("MailClient initialised");
+        LOG.info("MailClient initialised");
         MailClient mc = new MailClient();
         mc.run();
 
         Runtime.getRuntime().addShutdownHook(new Thread("Exit") {
             @Override
             public void run() {
-                log.info("MailClient exiting");
-                log.close();
+                LOG.info("MailClient exiting");
+                LOG.close();
             }
         });
     }

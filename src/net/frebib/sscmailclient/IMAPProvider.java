@@ -18,7 +18,7 @@ public class IMAPProvider implements MailProvider {
         try {
             this.store = session.getStore("imaps");
         } catch (NoSuchProviderException e) {
-            MailClient.log.exception(e);
+            MailClient.LOG.exception(e);
         }
     }
 

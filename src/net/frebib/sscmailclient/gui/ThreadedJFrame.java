@@ -49,17 +49,18 @@ public class ThreadedJFrame implements WindowListener {
 
     @Override
     public void windowOpened(WindowEvent e) {
-        MailClient.log.info("Window \"" + frame.getTitle() + "\" opened");
+        MailClient.LOG.info("Window \"" + frame.getTitle() + "\" opened");
     }
 
     @Override
     public void windowClosing(WindowEvent e) {
-        MailClient.log.info("Window \"" + frame.getTitle() + "\" closing");
+        MailClient.LOG.info("Window \"" + frame.getTitle() + "\" closing");
+        frame.dispose();
     }
 
     @Override
     public void windowClosed(WindowEvent e) {
-        MailClient.log.info("Window \"" + frame.getTitle() + "\" closed");
+        MailClient.LOG.info("Window \"" + frame.getTitle() + "\" closed");
     }
 
     @Override
