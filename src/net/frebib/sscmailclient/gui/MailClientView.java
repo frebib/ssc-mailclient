@@ -15,24 +15,27 @@ public class MailClientView extends JPanel implements ListSelectionListener {
     private EmailListModel listModel;
     private JTextArea emailPreview;
     private JScrollPane leftScroll, rightScroll;
-    private JButton btnCompose;
-    private JTextFieldHint txtSearch;
 
     private final Mailbox mailbox;
 
     private Worker<String> emailGrabber;
+    private Email grabbing;
 
     public MailClientView(Mailbox mailbox) {
         super();
 
         this.mailbox = mailbox;
         init();
+
+
+        new Worker<Email[]>()
+                .todo(() -> mailbox.getMessages("inbox"))
+                .onComplete(e -> listModel.add(e))
+                .start();
     }
 
     private void init() {
         listModel = new EmailListModel();
-        // TODO: Remove this
-        listModel.add(mailbox.getMessages("inbox"));
 
         emailList = new JList<>();
         emailList.addListSelectionListener(this);
@@ -41,30 +44,31 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         emailList.setCellRenderer(new EmailCellRenderer());
 
         leftScroll = new JScrollPane(emailList);
+        leftScroll.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 2));
         leftScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         emailPreview = new JTextArea();
         rightScroll = new JScrollPane(emailPreview);
+        rightScroll.setBorder(BorderFactory.createEmptyBorder(8, 2, 8, 8));
 
         splitPane = new JSplitPane();
         splitPane.setLeftComponent(leftScroll);
         splitPane.setRightComponent(rightScroll);
 
-        btnCompose = new JButton("Compose");
-        //btnCompose.addActionListener(e -> ((JFrame)this.getRootPane().getParent()).dispose());
-
-        txtSearch = new JTextFieldHint("Search");
-
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
-        add(btnCompose, BorderLayout.NORTH);
-        //add(txtSearch, BorderLayout.NORTH);
     }
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        if (emailGrabber != null && !emailGrabber.isComplete())
-            emailGrabber.cancel();
+        Email em = emailList.getSelectedValue();
+        em.setRead(true);
+        listModel.updateElem(em);
+        emailList.setSelectedValue(em, true);
+
+        if (grabbing != null && !em.equals(grabbing))
+            if (emailGrabber != null && !emailGrabber.isComplete())
+                emailGrabber.cancel();
 
         emailGrabber = new Worker<String>()
                 .todo(() -> emailList.getSelectedValue().getBody())

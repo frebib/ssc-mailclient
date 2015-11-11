@@ -21,7 +21,7 @@ public class EmailCellRenderer extends JPanel implements ListCellRenderer<Email>
         date = new JLabel();
 
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
+        setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
         add(subject);
         add(sender);
         add(date);
@@ -41,15 +41,15 @@ public class EmailCellRenderer extends JPanel implements ListCellRenderer<Email>
         if (isSelected) setColors(HL_BG_COL, HL_FG_COL);
         else setColors(BG_COL, FG_COL);
 
-        subject.setText(em.getSubject());
-
-        boolean read = !em.isRead();
-        MailClient.LOG.info(em.getSubject() + ", seen: " + Boolean.toString(read));
         subject.setFont(DEF_FONT.deriveFont(
-                DEF_FONT.getStyle() | (read ? Font.BOLD : Font.PLAIN),
+                DEF_FONT.getStyle() | (!em.isRead() ?  Font.BOLD :   Font.PLAIN)
+                                    | (em.isRecent() ? Font.ITALIC : Font.PLAIN),
                 DEF_FONT.getSize() * 1.4f)
         );
 
+        subject.setText((!em.isRead()     ? "• " :
+                         (em.isRecent()   ? "* " :
+                         (em.isAnswered() ? "← " : ""))) + em.getSubject());
         sender.setText(em.getFrom().toString());
         date.setText(em.getReceivedDate().toString());
 

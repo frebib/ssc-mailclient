@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 
 
 public class EmailListModel extends AbstractListModel<Email> implements Comparator<Email> {
@@ -22,6 +23,9 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
         Collections.sort(emails, this);
         fireContentsChanged(this, 0, emails.size());
     }
+    public void update() {
+        updateAt(0, emails.size());
+    }
     public void updateElem(Email email) {
         updateAt(emails.indexOf(email));
     }
@@ -30,6 +34,7 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     }
     public void updateAt(int i, int j) {
         fireContentsChanged(this, i, j);
+        Collections.sort(emails, this);
     }
     public void clear() {
         emails.clear();
@@ -45,11 +50,18 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     }
 
     @Override
-    public int compare(Email o1, Email o2) {
-        if (!o1.isRead() && o2.isRead())
-            return -1;
-        else if (o1.isRead() && !o2.isRead())
-            return 1;
-        return o1.getReceivedDate().compareTo(o2.getReceivedDate());
+    public int compare(Email e1, Email e2) {
+        boolean r1 = e1.isRead(),
+                r2 = e2.isRead(),
+                r3 = e1.isRecent(),
+                r4 = e2.isRecent();
+
+        if (r1 ^ r2)
+            return Boolean.compare(r1, r2);
+
+        if (r3 ^ r4)
+            return Boolean.compare(r3, r4);
+
+        return e2.getReceivedDate().compareTo(e1.getReceivedDate());
     }
 }
