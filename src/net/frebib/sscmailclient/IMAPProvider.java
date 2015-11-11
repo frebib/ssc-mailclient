@@ -4,8 +4,8 @@ import javax.mail.*;
 import java.util.Properties;
 
 public class IMAPProvider implements MailProvider {
-    private Properties props;
-    private Session session;
+    private final Properties props;
+    private final Session session;
     private Store store;
 
     public IMAPProvider(Properties props) throws IllegalArgumentException {
