@@ -43,7 +43,6 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         emailList.setCellRenderer(new EmailCellRenderer());
 
         leftScroll = new JScrollPane(emailList);
-        leftScroll.setVerticalScrollBar();ScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         leftScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 
         emailPreview = new JTextField();
