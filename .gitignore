@@ -3,4 +3,5 @@ out/
 *.class
 *.iml
 
+log/*
 settings/accounts
