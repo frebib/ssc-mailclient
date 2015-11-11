@@ -1,9 +1,6 @@
 package net.frebib.sscmailclient;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Store;
+import javax.mail.*;
 import java.util.Collections;
 import java.util.Observable;
 
@@ -13,6 +10,8 @@ public class Mailbox extends Observable {
 
     private Store store;
     private Email[] emails;
+
+    private Transport transport;
 
     public Mailbox(MailProvider mail, SendProvider send) {
         if (mail == null && send == null)
@@ -25,13 +24,13 @@ public class Mailbox extends Observable {
         if (mail != null)
             store = mail.connect();
         if (send != null)
-            send.connect();
+            transport = send.connect();
     }
 
     public Folder getFolder(String path) {
         try {
             return store.getFolder(path);
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
         return null;
@@ -49,7 +48,7 @@ public class Mailbox extends Observable {
                 emails[i] = new Email(msgs[i]);
 
             return emails;
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
         return null;
@@ -58,9 +57,17 @@ public class Mailbox extends Observable {
     public Folder[] getFolderList() {
         try {
             return store.getDefaultFolder().list();
-        } catch (MessagingException e) {
+        } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
         return null;
+    }
+
+    public void send(UnsentEmail email) {
+        try {
+            transport.sendMessage(email.prepare(), email.getRecipients());
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }
