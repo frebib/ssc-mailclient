@@ -23,11 +23,13 @@ public class IMAPProvider implements MailProvider {
     }
 
     @Override
-    public void connect() throws MessagingException {
-        store.connect(props.getProperty("mail.host"),
-                      props.getProperty("mail.user"),
-                      props.getProperty("mail.password")
-        );
+    public Store connect() throws MessagingException {
+        if (!store.isConnected())
+            store.connect(props.getProperty("mail.host"),
+                          props.getProperty("mail.user"),
+                          props.getProperty("mail.password")
+            );
+        return store;
     }
 
     @Override
@@ -36,20 +38,7 @@ public class IMAPProvider implements MailProvider {
     }
 
     @Override
-    public Folder getFolder(String path) throws MessagingException {
-        return store.getFolder(path);
-    }
-
-    @Override
-    public Message[] getMessages(String path) throws MessagingException {
-        Folder folder = getFolder(path);
-        if(!folder.isOpen())
-            folder.open(Folder.READ_WRITE);
-        return folder.getMessages();
-    }
-
-    @Override
-    public Folder[] getFolderList() throws MessagingException {
-        return store.getDefaultFolder().list();
+    public Store getStore() {
+        return store;
     }
 }

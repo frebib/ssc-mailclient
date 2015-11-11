@@ -19,20 +19,16 @@ public class MailClient {
             new SimpleDateFormat("'log/mailclient'yyyy-MM-dd hh-mm-ss'.log'")
             .format(new Date()));
 
+    private ThreadedJFrame frameThread;
     private MailClientView view;
     private MailClientFrame frame;
-    private static ThreadedJFrame frameThread;
+
+    private Mailbox mailbox;
 
     public MailClient() {
-        view = new MailClientView();
-        frame = new MailClientFrame("JavaMail Client", view);
-        frameThread = new ThreadedJFrame(frame, "FrameThread");
     }
 
     public void run() {
-        //frameThread.setVisible(true);
-        frame.dispose();
-
         Properties acc1;
         try {
             acc1 = SettingsManager.loadAccount("jxg415");
@@ -41,10 +37,16 @@ public class MailClient {
             return;
         }
 
-        IMAPProvider provider = new IMAPProvider(acc1);
+        mailbox = new Mailbox(new IMAPProvider(acc1), null);
         try {
-            provider.connect();
+            mailbox.connect();
+
+            view = new MailClientView(mailbox);
+            frame = new MailClientFrame("JavaMail Client", view);
+            frameThread = new ThreadedJFrame(frame, "FrameThread");
+
             // Do stuff and things
+            frameThread.setVisible(true);
 
 
         } catch (MessagingException e) {
