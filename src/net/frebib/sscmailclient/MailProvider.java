@@ -8,7 +8,7 @@ import java.util.Properties;
 
 public interface MailProvider {
     Session getSession();
-    void Connect() throws MessagingException;
+    void connect() throws MessagingException;
     Folder[] getFolderList() throws MessagingException;
     Folder getFolder(String path) throws MessagingException;
     Message[] getMessages(String path) throws MessagingException;

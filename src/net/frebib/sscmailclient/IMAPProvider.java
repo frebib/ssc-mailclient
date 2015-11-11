@@ -23,7 +23,7 @@ public class IMAPProvider implements MailProvider {
     }
 
     @Override
-    public void Connect() throws MessagingException {
+    public void connect() throws MessagingException {
         store.connect(props.getProperty("mail.host"),
                       props.getProperty("mail.user"),
                       props.getProperty("mail.password")

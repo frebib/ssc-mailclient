@@ -43,7 +43,7 @@ public class MailClient {
 
         IMAPProvider provider = new IMAPProvider(acc1);
         try {
-            provider.Connect();
+            provider.connect();
             // Do stuff and things
 
 
