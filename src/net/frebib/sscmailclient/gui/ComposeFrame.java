@@ -6,8 +6,8 @@ import java.io.File;
 
 public class ComposeFrame extends JFrame {
     private JPanel mainPanel, headerPanel;
-    private JLabel lTo, lCc, lSubj;
-    private JTextField tTo, tCc, tSubj;
+    private JLabel lTo, lCc, lBcc, lSubj;
+    private JTextField tTo, tCc, tBcc, tSubj;
     private JButton btnAttach, btnSend;
     private JList<File> attachList;
     private JTextArea txtBody;
@@ -17,10 +17,12 @@ public class ComposeFrame extends JFrame {
 
         lTo = new JLabel("To");
         lCc = new JLabel("Cc");
+        lBcc = new JLabel("Bcc");
         lSubj = new JLabel("Subject");
 
         tTo = new JTextField();
         tCc = new JTextField();
+        tBcc = new JTextField();
         tSubj = new JTextField();
 
         headerPanel = new JPanel(new GridBagLayout());
@@ -33,6 +35,7 @@ public class ComposeFrame extends JFrame {
 
         headerPanel.add(lTo, c);
         headerPanel.add(lCc, c);
+        headerPanel.add(lBcc, c);
         headerPanel.add(lSubj, c);
 
         c.gridx = 1;
@@ -41,6 +44,7 @@ public class ComposeFrame extends JFrame {
 
         headerPanel.add(tTo, c);
         headerPanel.add(tCc, c);
+        headerPanel.add(tBcc, c);
         headerPanel.add(tSubj, c);
 
         c.fill = GridBagConstraints.HORIZONTAL;
