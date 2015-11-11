@@ -3,6 +3,7 @@ package net.frebib.sscmailclient.gui;
 import net.frebib.sscmailclient.Email;
 import net.frebib.sscmailclient.MailClient;
 import net.frebib.sscmailclient.Mailbox;
+import net.frebib.util.task.Worker;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -23,6 +24,8 @@ public class MailClientView extends JPanel implements ListSelectionListener {
     private JTextFieldHint txtSearch;
 
     private final Mailbox mailbox;
+
+    private Worker<String> emailGrabber;
 
     public MailClientView(Mailbox mailbox) {
         super();
@@ -65,7 +68,12 @@ public class MailClientView extends JPanel implements ListSelectionListener {
 
     @Override
     public void valueChanged(ListSelectionEvent e) {
-        Email em = emailList.getSelectedValue();
-        emailPreview.setText(em.getBody());
+        if (emailGrabber != null && !emailGrabber.isComplete())
+            emailGrabber.cancel();
+
+        emailGrabber = new Worker<String>()
+                .todo(() -> emailList.getSelectedValue().getBody())
+                .onComplete(s -> emailPreview.setText(s))
+                .start();
     }
 }
