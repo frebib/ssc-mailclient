@@ -5,8 +5,6 @@ import net.frebib.sscmailclient.gui.MailClientView;
 import net.frebib.sscmailclient.gui.ThreadedJFrame;
 import net.frebib.util.Log;
 
-import javax.mail.Folder;
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -51,7 +49,6 @@ public class MailClient {
 
         } catch (MessagingException e) {
             LOG.exception(e);
-            return;
         }
     }
 

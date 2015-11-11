@@ -1,6 +1,10 @@
 package net.frebib.sscmailclient;
 
-import javax.mail.*;
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Store;
+import java.util.Collections;
 import java.util.Observable;
 
 public class Mailbox extends Observable {
@@ -8,7 +12,7 @@ public class Mailbox extends Observable {
     private SendProvider send;
 
     private Store store;
-    private Message[] emails;
+    private Email[] emails;
 
     public Mailbox(MailProvider mail, SendProvider send) {
         if (mail == null && send == null)
@@ -24,18 +28,39 @@ public class Mailbox extends Observable {
             send.connect();
     }
 
-    public Folder getFolder(String path) throws MessagingException {
-        return store.getFolder(path);
+    public Folder getFolder(String path) {
+        try {
+            return store.getFolder(path);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+        return null;
     }
 
-    public Message[] getMessages(String path) throws MessagingException {
-        Folder folder = getFolder(path);
-        if (!folder.isOpen())
-            folder.open(Folder.READ_WRITE);
-        return folder.getMessages();
+    public Email[] getMessages(String path) {
+        try {
+            Folder folder = getFolder(path);
+            if (!folder.isOpen())
+                folder.open(Folder.READ_WRITE);
+
+            Message[] msgs = folder.getMessages();
+            emails = new Email[msgs.length];
+            for (int i=0; i < msgs.length; i++)
+                emails[i] = new Email(msgs[i]);
+
+            return emails;
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+        return null;
     }
 
-    public Folder[] getFolderList() throws MessagingException {
-        return store.getDefaultFolder().list();
+    public Folder[] getFolderList() {
+        try {
+            return store.getDefaultFolder().list();
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+        return null;
     }
 }
