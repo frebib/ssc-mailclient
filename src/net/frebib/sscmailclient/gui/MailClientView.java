@@ -1,18 +1,13 @@
 package net.frebib.sscmailclient.gui;
 
 import net.frebib.sscmailclient.Email;
-import net.frebib.sscmailclient.MailClient;
 import net.frebib.sscmailclient.Mailbox;
 import net.frebib.util.task.Worker;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 public class MailClientView extends JPanel implements ListSelectionListener {
     private JSplitPane splitPane;
