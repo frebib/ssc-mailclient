@@ -6,6 +6,9 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -52,7 +55,7 @@ public class UnsentEmail {
         this.attachments = attachments;
     }
 
-    public Message prepare(Session session) throws MessagingException {
+    public Message prepare(Session session) throws MessagingException, IOException {
         Message message = new MimeMessage(session);
         message.setFrom(new InternetAddress(session.getProperties().getProperty("mail.user")));
         message.setRecipients(Message.RecipientType.TO, to);
@@ -65,6 +68,12 @@ public class UnsentEmail {
         BodyPart content = new MimeBodyPart();
         content.setContent(body, "text/plain");
         mp.addBodyPart(content);
+
+        for (File f : attachments) {
+            MimeBodyPart mbp = new MimeBodyPart();
+            mbp.attachFile(f);
+            mp.addBodyPart(mbp);
+        }
 
         message.setContent(mp);
 

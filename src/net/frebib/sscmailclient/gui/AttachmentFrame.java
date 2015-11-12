@@ -1,29 +1,33 @@
 package net.frebib.sscmailclient.gui;
 
+import net.frebib.sscmailclient.MailClient;
+
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.LinkedHashMap;
 
-public class AttachmentFrame extends JPanel {
-    private JList<File> attachList;
+public class AttachmentFrame extends JPanel implements ActionListener, MouseListener {
+    private JPanel attachPanel;
+    public LinkedHashMap<File, JPanel> attachList;
     public JButton btnAttach, btnSend;
 
     public AttachmentFrame() {
         super(new GridBagLayout());
-        attachList = new JList<>(new AttachmentListModel());
-        attachList.setCellRenderer(new AttachmentCellRenderer());
-        attachList.setAlignmentX(JList.HORIZONTAL_WRAP);
-        attachList.setLayout(new FlowLayout());
 
-        btnAttach = new JButton("Attach");
-        btnAttach.addActionListener(e -> {});
+        attachList = new LinkedHashMap<>();
+        attachPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 
         btnSend = new JButton("Send!");
-        btnSend.addActionListener(e -> {});
+
+        btnAttach = new JButton("Attach");
+        btnAttach.addActionListener(this);
 
         GridBagConstraints c = new GridBagConstraints();
         c.gridx = 0;
@@ -40,7 +44,7 @@ public class AttachmentFrame extends JPanel {
         c.insets = new Insets(0, 0, 0, 0);
         c.fill = GridBagConstraints.BOTH;
         c.anchor = GridBagConstraints.CENTER;
-        add(attachList, c);
+        add(new JScrollPane(attachPanel), c);
 
         c.gridx = 2;
         c.ipadx = 20;
@@ -49,62 +53,61 @@ public class AttachmentFrame extends JPanel {
         c.fill = GridBagConstraints.VERTICAL;
         c.anchor = GridBagConstraints.LINE_END;
         add(btnSend, c);
-
     }
 
-    private class AttachmentListModel extends AbstractListModel<File> implements Comparator<File> {
-        private List<File> files;
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        MailClient.LOG.fine("Attach button clicked");
+        JFileChooser chooser = new JFileChooser();
+        chooser.setMultiSelectionEnabled(true);
 
-        public AttachmentListModel() {
-            files = new ArrayList<>();
-        }
+        int ret = chooser.showOpenDialog(this.getParent());
+        if (ret != JFileChooser.APPROVE_OPTION)
+            return;
 
-        public void add(File f) {
-            files.add(f);
-            files.sort(this);
-            fireContentsChanged(this, 0, files.size());
+        File[] files = chooser.getSelectedFiles();
+        for (File f : files) {
+            MailClient.LOG.finer("File \"" + f.getName() + "\" attached");
+            JPanel fpanel = getFilePanel(f);
+            attachList.put(f, fpanel);
         }
+        updateView();
+    }
+    private void updateView() {
+        attachPanel.removeAll();
+        for (JPanel jp : attachList.values())
+            attachPanel.add(jp);
 
-        public void remove(File f) {
-            remove(f);
-        }
-
-        public void remove(int i) {
-            files.remove(i);
-            fireContentsChanged(this, i, i);
-        }
-
-        @Override
-        public int getSize() {
-            return files.size();
-        }
-
-        @Override
-        public File getElementAt(int i) {
-            return files.get(i);
-        }
-
-        @Override
-        public int compare(File f1, File f2) {
-            return -f1.getName().compareTo(f2.getName());
-        }
+        attachPanel.revalidate();
+    }
+    private JPanel getFilePanel(File f) {
+        JPanel panel = new JPanel();
+        panel.setBorder(BorderFactory.createLineBorder(Color.gray));
+        JLabel label = new JLabel(f.getName());
+        panel.add(label);
+        panel.addMouseListener(this);
+        return panel;
     }
 
-    private class AttachmentCellRenderer extends JPanel implements ListCellRenderer<File> {
-        private JLabel label;
+    private void menuClick(JPanel source) {
+        // TODO: Add right click menu
+    }
 
-        public AttachmentCellRenderer() {
-            //UIDefaults lf = UIManager.getLookAndFeel().getDefaults();
-            setBorder(BorderFactory.createCompoundBorder(
-                    BorderFactory.createEmptyBorder(4, 4, 4, 4),
-                    BorderFactory.createSoftBevelBorder(BevelBorder.RAISED)
-            ));
-        }
-
-        public Component getListCellRendererComponent(JList<? extends File> list, File f,
-                                                      int index, boolean isSelected, boolean cellHasFocus) {
-            label.setText(f.getName());
-            return this;
-        }
+    @Override
+    public void mousePressed(MouseEvent e) {
+        menuClick((JPanel)e.getSource());
+    }
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        menuClick((JPanel)e.getSource());
+    }
+    @Override
+    public void mouseClicked(MouseEvent e) {
+    }
+    @Override
+    public void mouseEntered(MouseEvent e) {
+    }
+    @Override
+    public void mouseExited(MouseEvent e) {
     }
 }

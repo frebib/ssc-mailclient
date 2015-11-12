@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,7 +72,7 @@ public class ComposeFrame extends JDialog implements WindowListener {
 
         c.gridx = 0;
         c.gridwidth = 2;
-        c.insets = new Insets(0, 0, 0, 0);
+        c.insets = new Insets(4, 0, 0, 0);
         headerPanel.add(attachPanel, c);
 
         //c.fill = GridBagConstraints.HORIZONTAL;
@@ -148,7 +149,7 @@ public class ComposeFrame extends JDialog implements WindowListener {
             if (!tBcc.getText().isEmpty())
                 email.setBcc(makeAddresses(tBcc.getText()));
 
-            // TODO: Add attachments
+            email.setAttachments(new ArrayList<File>(((AttachmentFrame)attachPanel).attachList.keySet()));
 
             mailbox.send(email);
 
