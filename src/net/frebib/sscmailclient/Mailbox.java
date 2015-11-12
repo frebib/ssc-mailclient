@@ -71,12 +71,9 @@ public class Mailbox extends Observable {
     }
 
     public void reloadFolder(Folder f) {
-        try {
-            setChanged();
-            notifyObservers(convertToEmail(f.expunge()));
-        } catch (MessagingException e) {
-            MailClient.LOG.exception(e);
-        }
+        String name = f.getFullName();
+        closeFolder(f);
+        fetchMessages(name);
     }
 
     public void fetchMessages(String path) {
