@@ -28,14 +28,8 @@ public class Mailbox extends Observable {
     public void connect() throws MessagingException {
         if (mail != null)
             store = mail.connect();
-        if (send != null) {
-            transport = send.connect();
-            sendSession = send.getSession();
-        }
         if (store != null && store.isConnected())
             MailClient.LOG.fine("Mail connected");
-        if (transport != null & transport.isConnected())
-            MailClient.LOG.fine("Send connected");
     }
 
     public void close() throws MessagingException {
@@ -100,6 +94,13 @@ public class Mailbox extends Observable {
 
     public void send(UnsentEmail email) {
         try {
+            if (send != null && (transport == null || sendSession == null)) {
+                transport = send.connect();
+                sendSession = send.getSession();
+                if (transport != null & transport.isConnected())
+                    MailClient.LOG.fine("Send connected");
+            }
+
             Message msg = email.prepare(sendSession);
             MailClient.LOG.info("Sending email: " + msg.getSubject());
             transport.sendMessage(msg, msg.getAllRecipients());
