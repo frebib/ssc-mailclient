@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.FileHandler;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
+import java.util.logging.*;
 
 public class Log implements Thread.UncaughtExceptionHandler {
     private static Level EXCEPTION_LEVEL = Level.SEVERE;
@@ -32,6 +29,9 @@ public class Log implements Thread.UncaughtExceptionHandler {
 
             logger.setUseParentHandlers(false); // Stops logging to the console
             logger.addHandler(fh);
+            ConsoleHandler ch = new ConsoleHandler();
+            ch.setLevel(logger.getLevel());
+            logger.addHandler(ch);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,9 +65,6 @@ public class Log implements Thread.UncaughtExceptionHandler {
     public void warning(String msg) { logger.log(Level.WARNING, addThreadName(msg)); }
     public void severe(String msg) { logger.log(Level.SEVERE, addThreadName(msg)); }
     public void exception(Exception e) {
-        // Also print to the console
-        e.printStackTrace();
-
         StringWriter sw = new StringWriter();
         e.printStackTrace(new PrintWriter(sw));
         logger.log(EXCEPTION_LEVEL, addThreadName(sw.toString()));
