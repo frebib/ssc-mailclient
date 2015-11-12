@@ -3,6 +3,8 @@ package net.frebib.sscmailclient.gui;
 import net.frebib.sscmailclient.Email;
 
 import javax.swing.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.*;
 
 
@@ -34,6 +36,15 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     public void clear() {
         emails.clear();
         fireContentsChanged(this, 0, emails.size());
+    }
+    public void remove(Email e) {
+        int i = emails.indexOf(e);
+        emails.remove(e);
+        fireContentsChanged(this, i, i);
+    }
+    public void remove(int i) {
+        emails.remove(i);
+        fireContentsChanged(this, i, i);
     }
     @Override
     public int getSize() {
