@@ -12,11 +12,13 @@ public class Email {
     private Date receivedDate;
     private boolean read, recent, answered;
     private Content content;
+    private List<CustomFlag> flags;
 
     private Message msg;
 
     public Email(Message msg) {
         this.msg = msg;
+        flags = new ArrayList<>();
         try {
             from = msg.getFrom()[0];
             to = msg.getAllRecipients();
@@ -74,6 +76,17 @@ public class Email {
 
     public void delete() {
         setFlag(Flags.Flag.DELETED, true);
+    }
+
+    public void setCustomFlag(CustomFlag flag, boolean value) {
+        if (value && !flags.contains(flag))
+            flags.add(flag);
+        if (!value && flags.contains(flag))
+            flags.remove(flag);
+    }
+
+    public boolean hasFlag(CustomFlag flag) {
+        return flags.contains(flag);
     }
 
     private void setFlag(Flags.Flag flag, boolean value) {
@@ -178,6 +191,17 @@ public class Email {
 
         public Object[] getAttachments() {
             return new Object[0];
+        }
+    }
+
+    public enum CustomFlag {
+        SPAM(1),
+        FLAG2(2),
+        FLAG3(4);
+
+        private int id;
+        CustomFlag(int id) {
+            this.id = id;
         }
     }
 }
