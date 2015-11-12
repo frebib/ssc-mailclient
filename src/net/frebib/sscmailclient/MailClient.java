@@ -41,21 +41,28 @@ public class MailClient {
         frame = new MailClientFrame("JavaMail Client", view, mailbox);
         frameThread = new ThreadedJFrame(frame, "FrameThread");
 
+        // Open incoming mailbox connection
         new Worker<>()
                 .todo(() -> mailbox.connect())
                 .error(LOG::exception)
                 .done(n -> {
                     LOG.info("Mailbox connected");
 
+                    // Fetch emails in inbox
                     new Worker<Email[]>()
                             .todo(() -> mailbox.fetchMessages("inbox"))
                             .start();
                 }).start();
 
-        // Do stuff and things
+        // Start the window thread
         frameThread.setVisible(true);
     }
 
+    /**
+     * It's 7.01am. Comments can come later.
+     * I'M GOING TO SLEEP
+     * @param args command line arguments
+     */
     public static void main(String[] args) {
         Thread.currentThread().setName("MailClient");
         LOG.info("MailClient initialised");
@@ -66,6 +73,7 @@ public class MailClient {
             @Override
             public void run() {
                 try {
+                    // Safely close down connections
                     mc.mailbox.close();
                     LOG.info("MailClient exiting");
                     LOG.close();
