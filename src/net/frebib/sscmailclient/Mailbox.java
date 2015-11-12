@@ -46,7 +46,7 @@ public class Mailbox extends Observable {
 
             Message[] msgs = folder.getMessages();
             emails = new Email[msgs.length];
-            for (int i=0; i < msgs.length; i++)
+            for (int i = 0; i < msgs.length; i++)
                 emails[i] = new Email(msgs[i]);
 
             return emails;
