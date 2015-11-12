@@ -125,19 +125,22 @@ public class Mailbox extends Observable {
     }
 
     public void send(UnsentEmail email) {
-        try {
-            if (send != null && (transport == null || sendSession == null)) {
-                transport = send.connect();
-                sendSession = send.getSession();
-                if (transport != null & transport.isConnected())
-                    MailClient.LOG.fine("Send connected");
-            }
-
-            Message msg = email.prepare(sendSession);
-            MailClient.LOG.info("Sending email: " + msg.getSubject());
-            transport.sendMessage(msg, msg.getAllRecipients());
-        } catch (Exception e) {
-            MailClient.LOG.exception(e);
-        }
+        new Worker<>()
+            .todo(() -> {
+                if (send != null && (transport == null || sendSession == null)) {
+                    transport = send.connect();
+                    sendSession = send.getSession();
+                    if (transport != null & transport.isConnected())
+                        MailClient.LOG.fine("Send connected");
+                }
+            }).done(n -> {
+                try {
+                    Message msg = email.prepare(sendSession);
+                    MailClient.LOG.info("Sending email: " + msg.getSubject());
+                    transport.sendMessage(msg, msg.getAllRecipients());
+                } catch (Exception e) {
+                    MailClient.LOG.exception(e);
+                }
+            }).start();
     }
 }
