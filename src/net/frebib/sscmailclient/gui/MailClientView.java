@@ -108,15 +108,20 @@ public class MailClientView extends JPanel implements ListSelectionListener {
             itm = new JMenuItem("Forward");
             itm.addActionListener(e -> forward(em));
             rightClickMenu.add(itm);
-            itm = new JMenuItem("Mark as Unread");
-            itm.addActionListener(e -> markAsUnread(em));
-            rightClickMenu.add(itm);
-            itm = new JMenuItem("Spam");
-            itm.addActionListener(e -> spam(em));
-            rightClickMenu.add(itm);
             itm = new JMenuItem("Delete");
             itm.addActionListener(e -> delete(em));
             rightClickMenu.add(itm);
+            rightClickMenu.add(new JSeparator());
+            itm = new JMenuItem("Mark as Unread");
+            itm.addActionListener(e -> markAsUnread(em));
+            rightClickMenu.add(itm);
+            JMenu subm = new JMenu("Set Flags");
+            for (Email.CustomFlag cf : Email.CustomFlag.values()) {
+                itm = new JMenuItem(cf.flag);
+                itm.addActionListener(e -> flags(em, cf));
+                subm.add(itm);
+            }
+            rightClickMenu.add(subm);
         }
         private void reply(Email e) {
 
@@ -128,8 +133,9 @@ public class MailClientView extends JPanel implements ListSelectionListener {
             e.setRead(false);
             listModel.updateElem(e);
         }
-        private void spam(Email e) {
-
+        private void flags(Email e, Email.CustomFlag flag) {
+            e.toggleCustomFlag(flag);
+            listModel.updateElem(e);
         }
         private void delete(Email e) {
             e.delete();

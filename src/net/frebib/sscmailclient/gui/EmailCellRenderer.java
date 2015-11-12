@@ -43,7 +43,8 @@ public class EmailCellRenderer extends JPanel implements ListCellRenderer<Email>
                 DEF_FONT.getSize() * 1.4f)
         );
 
-        subject.setText((!em.isRead()     ? "• " :
+        subject.setText(  em.getFlags() + " " +
+                        (!em.isRead()     ? "• " :
                          (em.isRecent()   ? "* " :
                          (em.isAnswered() ? "← " : ""))) + em.getSubject());
         sender.setText(em.getFrom().toString());

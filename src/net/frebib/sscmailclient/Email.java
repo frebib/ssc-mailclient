@@ -85,8 +85,15 @@ public class Email {
             flags.remove(flag);
     }
 
-    public boolean hasFlag(CustomFlag flag) {
+    public boolean hasCustomFlag(CustomFlag flag) {
         return flags.contains(flag);
+    }
+    public void toggleCustomFlag(CustomFlag flag) {
+        setCustomFlag(flag, !hasCustomFlag(flag));
+    }
+
+    public String getFlags() {
+        return String.join(", ", flags.stream().map(s -> s.flag).toArray(String[]::new));
     }
 
     private void setFlag(Flags.Flag flag, boolean value) {
@@ -195,13 +202,13 @@ public class Email {
     }
 
     public enum CustomFlag {
-        SPAM(1),
-        FLAG2(2),
-        FLAG3(4);
+        SPAM("!SPAM!"),
+        FLAG2("ABC"),
+        FLAG3("123");
 
-        private int id;
-        CustomFlag(int id) {
-            this.id = id;
+        public String flag;
+        CustomFlag(String flag) {
+            this.flag = flag;
         }
     }
 }
