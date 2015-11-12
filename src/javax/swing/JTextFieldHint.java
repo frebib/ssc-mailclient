@@ -1,14 +1,10 @@
 package javax.swing;
 
-import org.omg.PortableInterceptor.INACTIVE;
-
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.Objects;
 
 public class JTextFieldHint extends JTextField implements FocusListener, KeyListener {
     private String hint;

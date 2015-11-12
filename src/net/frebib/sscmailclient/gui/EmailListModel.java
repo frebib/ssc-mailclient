@@ -1,9 +1,7 @@
 package net.frebib.sscmailclient.gui;
 
 import net.frebib.sscmailclient.Email;
-import net.frebib.sscmailclient.MailClient;
 
-import javax.mail.MessagingException;
 import javax.swing.*;
 import java.util.*;
 

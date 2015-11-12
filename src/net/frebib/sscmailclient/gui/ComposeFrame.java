@@ -7,14 +7,12 @@ import net.frebib.sscmailclient.UnsentEmail;
 import javax.mail.Address;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class ComposeFrame extends JDialog {
     private JPanel mainPanel, headerPanel, attachPanel;
@@ -162,7 +160,7 @@ public class ComposeFrame extends JDialog {
     private Address[] makeAddresses(String addresses) throws AddressException {
         String[] strings = cutAddresses(addresses);
         Address[] addr = new Address[strings.length];
-        for(int i=0; i < strings.length; i++)
+        for (int i = 0; i < strings.length; i++)
             addr[i] = new InternetAddress(strings[i]);
         return addr;
     }

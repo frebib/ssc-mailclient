@@ -1,6 +1,9 @@
 package net.frebib.sscmailclient;
 
-import javax.mail.*;
+import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Session;
+import javax.mail.Transport;
 import java.util.Properties;
 
 public class SMTPProvider implements SendProvider {

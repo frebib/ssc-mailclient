@@ -2,7 +2,6 @@ package net.frebib.sscmailclient;
 
 import javax.mail.*;
 import java.util.Observable;
-import java.util.Observer;
 
 public class Mailbox extends Observable {
     private MailProvider mail;

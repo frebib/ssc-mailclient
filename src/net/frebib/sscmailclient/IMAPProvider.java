@@ -1,6 +1,9 @@
 package net.frebib.sscmailclient;
 
-import javax.mail.*;
+import javax.mail.MessagingException;
+import javax.mail.NoSuchProviderException;
+import javax.mail.Session;
+import javax.mail.Store;
 import java.util.Properties;
 
 public class IMAPProvider implements MailProvider {

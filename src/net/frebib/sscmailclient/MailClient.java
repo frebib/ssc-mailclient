@@ -6,7 +6,6 @@ import net.frebib.sscmailclient.gui.ThreadedJFrame;
 import net.frebib.util.Log;
 import net.frebib.util.task.Worker;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;

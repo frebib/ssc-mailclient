@@ -3,7 +3,6 @@ package net.frebib.sscmailclient;
 import net.frebib.util.IOHelper;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Properties;
 

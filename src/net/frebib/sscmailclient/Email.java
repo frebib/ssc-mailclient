@@ -151,7 +151,7 @@ public class Email {
                 if (!downloaded) {
                     downloaded = true;
                     Multipart mp = (Multipart) part.getContent();
-                    for (int i=0; i < mp.getCount(); i++) {
+                    for (int i = 0; i < mp.getCount(); i++) {
                         Part part = mp.getBodyPart(i);
                         if (part.isMimeType("multipart/*")) {
                             // Yay recursion :D
