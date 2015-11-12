@@ -35,8 +35,10 @@ public class Mailbox extends Observable {
     public void close() throws MessagingException {
         for (Folder f : openFolders)
             f.close(true);
-        store.close();
-        transport.close();
+        if (store != null)
+            store.close();
+        if (transport != null)
+            transport.close();
     }
 
     public Folder getFolder(String path) {
