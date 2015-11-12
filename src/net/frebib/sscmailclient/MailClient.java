@@ -6,6 +6,7 @@ import net.frebib.sscmailclient.gui.ThreadedJFrame;
 import net.frebib.util.Log;
 import net.frebib.util.task.Worker;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -64,8 +65,13 @@ public class MailClient {
         Runtime.getRuntime().addShutdownHook(new Thread("Exit") {
             @Override
             public void run() {
-                LOG.info("MailClient exiting");
-                LOG.close();
+                try {
+                    mc.mailbox.close();
+                    LOG.info("MailClient exiting");
+                    LOG.close();
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }

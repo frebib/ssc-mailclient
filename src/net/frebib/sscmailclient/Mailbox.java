@@ -1,6 +1,8 @@
 package net.frebib.sscmailclient;
 
 import javax.mail.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 
 public class Mailbox extends Observable {
@@ -12,11 +14,15 @@ public class Mailbox extends Observable {
 
     private Transport transport;
 
+    private List<Folder> openFolders;
+
     public Mailbox(MailProvider mail, SendProvider send) {
         if (mail == null && send == null)
             throw new IllegalArgumentException("Must have either a mail or send provider");
         this.mail = mail;
         this.send = send;
+
+        this.openFolders = new ArrayList<>();
     }
 
     public void connect() throws MessagingException {
@@ -32,6 +38,13 @@ public class Mailbox extends Observable {
             MailClient.LOG.fine("Send connected");
     }
 
+    public void close() throws MessagingException {
+        for (Folder f : openFolders)
+            f.close(true);
+        store.close();
+        transport.close();
+    }
+
     public Folder getFolder(String path) {
         try {
             MailClient.LOG.finer("Loading folder \"" + path + "\"");
@@ -40,6 +53,14 @@ public class Mailbox extends Observable {
             MailClient.LOG.exception(e);
         }
         return null;
+    }
+    public void closeFolder(Folder f) {
+        try {
+            openFolders.remove(f);
+            f.close(true);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
     }
 
     public void fetchMessages(String path) {
@@ -52,6 +73,8 @@ public class Mailbox extends Observable {
             Folder folder = getFolder(path);
             if (!folder.isOpen())
                 folder.open(Folder.READ_WRITE);
+            if (!openFolders.contains(folder))
+                openFolders.add(folder);
 
             Message[] msgs = folder.getMessages();
             Email[] emails = new Email[msgs.length];
