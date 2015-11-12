@@ -10,11 +10,13 @@ import javax.mail.internet.InternetAddress;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class ComposeFrame extends JDialog {
+public class ComposeFrame extends JDialog implements WindowListener {
     private JPanel mainPanel, headerPanel, attachPanel;
     private JLabel lTo, lCc, lBcc, lSubj;
     private JTextField tTo, tCc, tBcc, tSubj;
@@ -25,6 +27,7 @@ public class ComposeFrame extends JDialog {
 
     public ComposeFrame(Frame parent, Mailbox mailbox) {
         super(parent, "Compose an Email", true);
+        addWindowListener(this);
 
         this.mailbox = mailbox;
 
@@ -183,5 +186,31 @@ public class ComposeFrame extends JDialog {
             }
         }
         return errors;
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+        MailClient.LOG.info("Window \"" + this.getTitle() + "\" opened");
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+        MailClient.LOG.info("Window \"" + this.getTitle() + "\" closing");
+        this.dispose();
+    }
+
+    public void windowClosed(WindowEvent e) {
+    }
+
+    public void windowIconified(WindowEvent e) {
+    }
+
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    public void windowActivated(WindowEvent e) {
+    }
+
+    public void windowDeactivated(WindowEvent e) {
     }
 }
