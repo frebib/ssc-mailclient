@@ -14,7 +14,7 @@ import java.awt.event.MouseEvent;
 public class MailClientView extends JPanel implements ListSelectionListener {
     private JSplitPane splitPane;
     private JList<Email> emailList;
-    private EmailListModel listModel;
+    public EmailListModel listModel;
     private JTextArea emailPreview;
     private JScrollPane leftScroll, rightScroll;
 

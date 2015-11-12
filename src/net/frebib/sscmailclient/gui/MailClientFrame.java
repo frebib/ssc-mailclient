@@ -1,6 +1,7 @@
 package net.frebib.sscmailclient.gui;
 
 import net.frebib.sscmailclient.Mailbox;
+import net.frebib.util.task.Worker;
 
 import javax.swing.*;
 import java.awt.*;
@@ -53,13 +54,15 @@ public class MailClientFrame extends JFrame {
                 composer.setVisible(true);
             });
             btnReload = new JButton("↻");
-            btnReload.addActionListener(e -> mailbox.reloadFolder(mailbox.getCurrent()));
+            btnReload.addActionListener(e -> {
+                new Worker<>().todo(() -> {
+                    view.listModel.clear();
+                    mailbox.reloadFolder(mailbox.getCurrent());
+                }).start();
+            });
 
             txtSearch = new JTextFieldHint("Search");
             txtSearch.addKeyListener(new KeyListener() {
-                @Override
-                public void keyTyped(KeyEvent e) {
-                }
                 @Override
                 public void keyPressed(KeyEvent e) {
                     if (e.getKeyCode() == KeyEvent.VK_ENTER)
@@ -69,6 +72,9 @@ public class MailClientFrame extends JFrame {
                         txtSearch.setText("");
                         txtSearch.getParent().requestFocus();
                     }
+                }
+                @Override
+                public void keyTyped(KeyEvent e) {
                 }
                 @Override
                 public void keyReleased(KeyEvent e) {
