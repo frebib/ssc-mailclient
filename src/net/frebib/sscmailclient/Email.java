@@ -61,24 +61,25 @@ public class Email {
 
     public void setAnswered(boolean answered) {
         this.answered = answered;
-        try {
-            msg.setFlag(Flags.Flag.ANSWERED, answered);
-        } catch (MessagingException e) {
-            MailClient.LOG.exception(e);
-        }
+        setFlag(Flags.Flag.ANSWERED, answered);
     }
     public void setRead(boolean read) {
         this.read = read;
-        try {
-            msg.setFlag(Flags.Flag.SEEN, read);
-        } catch (MessagingException e) {
-            MailClient.LOG.exception(e);
-        }
+        setFlag(Flags.Flag.SEEN, read);
     }
     public void setRecent(boolean recent) {
         this.recent = recent;
+        setFlag(Flags.Flag.RECENT, recent);
+    }
+
+    public void delete() {
+        setFlag(Flags.Flag.DELETED, true);
+    }
+
+    private void setFlag(Flags.Flag flag, boolean value) {
         try {
-            msg.setFlag(Flags.Flag.RECENT, recent);
+            msg.setFlag(flag, value);
+            msg.getFolder().expunge();
         } catch (MessagingException e) {
             MailClient.LOG.exception(e);
         }
