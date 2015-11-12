@@ -1,7 +1,12 @@
 package net.frebib.sscmailclient;
 
+import net.frebib.util.task.Worker;
+import sun.misc.resources.Messages;
+
 import javax.mail.*;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Observable;
 
@@ -15,6 +20,7 @@ public class Mailbox extends Observable {
     private Transport transport;
 
     private List<Folder> openFolders;
+    private Folder current;
 
     public Mailbox(MailProvider mail, SendProvider send) {
         if (mail == null && send == null)
@@ -41,10 +47,14 @@ public class Mailbox extends Observable {
             transport.close();
     }
 
+    public Folder getCurrent() {
+        return current;
+    }
     public Folder getFolder(String path) {
         try {
             MailClient.LOG.finer("Loading folder \"" + path + "\"");
-            return store.getFolder(path);
+            current = store.getFolder(path);
+            return current;
         } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
@@ -54,6 +64,16 @@ public class Mailbox extends Observable {
         try {
             openFolders.remove(f);
             f.close(true);
+            current = null;
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+    }
+
+    public void reloadFolder(Folder f) {
+        try {
+            setChanged();
+            notifyObservers(getMessages(f.expunge()));
         } catch (MessagingException e) {
             MailClient.LOG.exception(e);
         }
@@ -71,17 +91,27 @@ public class Mailbox extends Observable {
                 folder.open(Folder.READ_WRITE);
             if (!openFolders.contains(folder))
                 openFolders.add(folder);
-
-            Message[] msgs = folder.getMessages();
-            Email[] emails = new Email[msgs.length];
-            for (int i = 0; i < msgs.length; i++)
-                emails[i] = new Email(msgs[i]);
-
-            return emails;
+            return getMessages(folder);
         } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
         return null;
+    }
+
+    public Email[] getMessages(Folder folder) {
+        try {
+            return getMessages(folder.getMessages());
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+        return null;
+    }
+    public Email[] getMessages(Message[] msgs) {
+        Email[] emails = new Email[msgs.length];
+        for (int i = 0; i < msgs.length; i++)
+            emails[i] = new Email(msgs[i]);
+
+        return emails;
     }
 
     public Folder[] getFolderList() {
