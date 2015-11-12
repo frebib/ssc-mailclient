@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MailClientView extends JPanel implements ListSelectionListener {
     private JSplitPane splitPane;
@@ -15,6 +17,8 @@ public class MailClientView extends JPanel implements ListSelectionListener {
     private EmailListModel listModel;
     private JTextArea emailPreview;
     private JScrollPane leftScroll, rightScroll;
+
+    private JPopupMenu rightClickMenu;
 
     private final Mailbox mailbox;
 
@@ -51,6 +55,9 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         splitPane.setLeftComponent(leftScroll);
         splitPane.setRightComponent(rightScroll);
 
+        rightClickMenu = new JPopupMenu();
+        emailList.addMouseListener(new RightClickHandler());
+
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
     }
@@ -70,5 +77,61 @@ public class MailClientView extends JPanel implements ListSelectionListener {
                 .get(() -> emailList.getSelectedValue().getBody())
                 .done(s -> emailPreview.setText(s))
                 .start();
+    }
+
+    private class RightClickHandler extends MouseAdapter {
+        @Override
+        public void mousePressed(MouseEvent e) {
+            onMouseEvent(e);
+        }
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            onMouseEvent(e);
+        }
+        private void onMouseEvent(MouseEvent e) {
+            if (e.isPopupTrigger()) {
+                Email em = listModel.getElementAt(emailList.locationToIndex(e.getPoint()));
+                initMenu(em);
+                emailList.setSelectedValue(em, true);
+                rightClickMenu.show(emailList, e.getX(), e.getY());
+            }
+        }
+
+        public void initMenu(Email em) {
+            rightClickMenu.removeAll();
+            JMenuItem itm;
+            itm = new JMenuItem("Reply");
+            itm.addActionListener(e -> reply(em));
+            rightClickMenu.add(itm);
+            itm = new JMenuItem("Forward");
+            itm.addActionListener(e -> forward(em));
+            rightClickMenu.add(itm);
+            itm = new JMenuItem("Mark as Unread");
+            itm.addActionListener(e -> markAsUnread(em));
+            rightClickMenu.add(itm);
+            itm = new JMenuItem("Spam");
+            itm.addActionListener(e -> spam(em));
+            rightClickMenu.add(itm);
+            itm = new JMenuItem("Delete");
+            itm.addActionListener(e -> delete(em));
+            rightClickMenu.add(itm);
+        }
+        private void reply(Email e) {
+
+        }
+        private void forward(Email e) {
+
+        }
+        private void markAsUnread(Email e) {
+            e.setRead(false);
+            listModel.updateElem(e);
+        }
+        private void spam(Email e) {
+
+        }
+        private void delete(Email e) {
+            e.delete();
+            listModel.remove(e);
+        }
     }
 }
