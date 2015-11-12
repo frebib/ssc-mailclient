@@ -27,10 +27,15 @@ public class Mailbox extends Observable {
             transport = send.connect();
             sendSession = send.getSession();
         }
+        if (store != null && store.isConnected())
+            MailClient.LOG.fine("Mail connected");
+        if (transport != null & transport.isConnected())
+            MailClient.LOG.fine("Send connected");
     }
 
     public Folder getFolder(String path) {
         try {
+            MailClient.LOG.finer("Loading folder \"" + path + "\"");
             return store.getFolder(path);
         } catch (Exception e) {
             MailClient.LOG.exception(e);
@@ -58,6 +63,7 @@ public class Mailbox extends Observable {
 
     public Folder[] getFolderList() {
         try {
+            MailClient.LOG.finer("Loading default folder");
             return store.getDefaultFolder().list();
         } catch (Exception e) {
             MailClient.LOG.exception(e);
@@ -68,6 +74,7 @@ public class Mailbox extends Observable {
     public void send(UnsentEmail email) {
         try {
             Message msg = email.prepare(sendSession);
+            MailClient.LOG.info("Sending email: " + msg.getSubject());
             transport.sendMessage(msg, msg.getAllRecipients());
         } catch (Exception e) {
             MailClient.LOG.exception(e);
