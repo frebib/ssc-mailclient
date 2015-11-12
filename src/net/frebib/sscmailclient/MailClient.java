@@ -35,12 +35,12 @@ public class MailClient {
             return;
         }
 
-        mailbox = new Mailbox(new IMAPProvider(acc1), null);
+        mailbox = new Mailbox(new IMAPProvider(acc1), new SMTPProvider(acc1));
         try {
             mailbox.connect();
 
             view = new MailClientView(mailbox);
-            frame = new MailClientFrame("JavaMail Client", view);
+            frame = new MailClientFrame("JavaMail Client", view, mailbox);
             frameThread = new ThreadedJFrame(frame, "FrameThread");
 
             // Do stuff and things

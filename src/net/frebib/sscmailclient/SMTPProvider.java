@@ -16,7 +16,7 @@ public class SMTPProvider implements SendProvider {
         this.props = props;
         this.session = Session.getInstance(props);
         try {
-            this.transport = session.getTransport("smtps");
+            this.transport = session.getTransport("smtp");
         } catch (NoSuchProviderException e) {
             MailClient.LOG.exception(e);
         }

@@ -1,13 +1,13 @@
 package net.frebib.sscmailclient;
 
 import javax.mail.*;
-import java.util.Collections;
 import java.util.Observable;
 
 public class Mailbox extends Observable {
     private MailProvider mail;
     private SendProvider send;
 
+    private Session sendSession;
     private Store store;
     private Email[] emails;
 
@@ -23,8 +23,10 @@ public class Mailbox extends Observable {
     public void connect() throws MessagingException {
         if (mail != null)
             store = mail.connect();
-        if (send != null)
+        if (send != null) {
             transport = send.connect();
+            sendSession = send.getSession();
+        }
     }
 
     public Folder getFolder(String path) {
@@ -65,9 +67,10 @@ public class Mailbox extends Observable {
 
     public void send(UnsentEmail email) {
         try {
-            transport.sendMessage(email.prepare(), email.getRecipients());
-        } catch (MessagingException e) {
-            e.printStackTrace();
+            Message msg = email.prepare(sendSession);
+            transport.sendMessage(msg, msg.getAllRecipients());
+        } catch (Exception e) {
+            MailClient.LOG.exception(e);
         }
     }
 }

@@ -1,5 +1,7 @@
 package net.frebib.sscmailclient.gui;
 
+import net.frebib.sscmailclient.Mailbox;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,11 +11,11 @@ public class MailClientFrame extends JFrame {
 
     private ComposeFrame composer;
 
-    public MailClientFrame(String title, MailClientView view) {
+    public MailClientFrame(String title, MailClientView view, Mailbox mailbox) {
         super(title);
         this.view = view;
         this.controls = new MailClientControls();
-        this.composer = new ComposeFrame();
+        this.composer = new ComposeFrame(this, mailbox);
 
         setLayout(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();

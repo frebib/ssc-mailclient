@@ -1,7 +1,7 @@
 package net.frebib.sscmailclient;
 
-import javax.mail.Address;
-import javax.mail.Message;
+import javax.mail.*;
+import javax.mail.internet.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,11 +11,18 @@ public class UnsentEmail {
     private String subject, body;
     private List<File> attachments;
 
-    public UnsentEmail(Address[] to, String subject, String body) {
+    public UnsentEmail(Address[] to, String body, String subject) {
         this.to = to;
         this.subject = subject;
         this.body = body;
         this.attachments = new ArrayList<>();
+    }
+
+    public void setCc(Address[] cc) {
+        this.cc = cc;
+    }
+    public void setBcc(Address[] bcc) {
+        this.bcc = bcc;
     }
 
     public String getSubject() {
@@ -42,11 +49,22 @@ public class UnsentEmail {
         this.attachments = attachments;
     }
 
-    public Message prepare() {
-        return null;
-    }
+    public Message prepare(Session session) throws MessagingException {
+        Message message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(session.getProperties().getProperty("mail.user")));
+        message.setRecipients(Message.RecipientType.TO, to);
+        message.setRecipients(Message.RecipientType.CC, cc);
+        message.setRecipients(Message.RecipientType.BCC, bcc);
+        message.setSubject(subject);
 
-    public Address[] getRecipients() {
-        return null;
+        Multipart mp = new MimeMultipart();
+
+        BodyPart content = new MimeBodyPart();
+        content.setContent(body, "text/plain");
+        mp.addBodyPart(content);
+
+        message.setContent(mp);
+
+        return message;
     }
 }

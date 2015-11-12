@@ -1,23 +1,38 @@
 package net.frebib.sscmailclient.gui;
 
+import net.frebib.sscmailclient.MailClient;
+import net.frebib.sscmailclient.Mailbox;
+import net.frebib.sscmailclient.UnsentEmail;
+
+import javax.mail.Address;
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeMessage;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Comparator;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
-public class ComposeFrame extends JFrame {
+public class ComposeFrame extends JDialog {
     private JPanel mainPanel, headerPanel, attachPanel;
     private JLabel lTo, lCc, lBcc, lSubj;
     private JTextField tTo, tCc, tBcc, tSubj;
     private JTextArea txtBody;
     private JButton btnSend;
 
-    public ComposeFrame() {
-        super("Compose an Email");
+    private Mailbox mailbox;
+
+    public ComposeFrame(Frame parent, Mailbox mailbox) {
+        super(parent, "Compose an Email", true);
+
+        this.mailbox = mailbox;
 
         attachPanel = new AttachmentFrame();
         btnSend = ((AttachmentFrame) attachPanel).btnSend;
+        btnSend.addActionListener(e -> sendClick(e));
 
         lTo = new JLabel("To", SwingConstants.RIGHT);
         lCc = new JLabel("Cc", SwingConstants.RIGHT);
@@ -75,6 +90,100 @@ public class ComposeFrame extends JFrame {
 
         add(mainPanel);
 
+        setMinimumSize(new Dimension(700, 700));
+        setPreferredSize(getMinimumSize());
         pack();
+        setLocationRelativeTo(parent);
+    }
+
+    private void sendClick(ActionEvent e) {
+        List<String> errors = new ArrayList<>();
+        String[] recipients;
+
+        if (tTo.getText().isEmpty())
+            errors.add("The email must have at least one recipient");
+        else
+            errors.addAll(checkAddressErrors(tTo.getText()));
+
+        errors.addAll(checkAddressErrors(tCc.getText()));
+        errors.addAll(checkAddressErrors(tBcc.getText()));
+
+        String[] arr = new String[errors.size()];
+        errors.toArray(arr);
+
+        if (errors.size() > 0) {
+            JOptionPane.showMessageDialog(this, String.join("\n", arr));
+            return;
+        }
+
+        if (tSubj.getText().isEmpty() && txtBody.getText().isEmpty())
+            JOptionPane.showMessageDialog(this, "You can't send a blank email.\n" +
+                    "Please fill in either the subject or message body");
+
+        if (tSubj.getText().isEmpty()) {
+            int answer = JOptionPane.showOptionDialog(this,
+                    "Are you sure you want to send the email without a subject?",
+                    "Are you sure?", JOptionPane.YES_OPTION | JOptionPane.CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+            if (answer != JOptionPane.YES_OPTION)
+                return;
+        }
+
+        if (txtBody.getText().isEmpty()) {
+            int answer = JOptionPane.showOptionDialog(this,
+                    "Are you sure you want to send the email without body text?",
+                    "Are you sure?", JOptionPane.YES_OPTION | JOptionPane.CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, null, null);
+            if (answer != JOptionPane.YES_OPTION)
+                return;
+        }
+
+        // Can send!
+        try {
+            UnsentEmail email = new UnsentEmail(makeAddresses(tTo.getText()),
+                    txtBody.getText(), tSubj.getText());
+            if (!tCc.getText().isEmpty())
+                email.setCc(makeAddresses(tCc.getText()));
+            if (!tBcc.getText().isEmpty())
+                email.setBcc(makeAddresses(tBcc.getText()));
+
+            // TODO: Add attachments
+
+            mailbox.send(email);
+
+            // Close the form after email is sent
+            this.setVisible(false);
+            this.dispose();
+        } catch (Exception ex) {
+            MailClient.LOG.exception(ex);
+        }
+    }
+
+    private Address[] makeAddresses(String addresses) throws AddressException {
+        String[] strings = cutAddresses(addresses);
+        Address[] addr = new Address[strings.length];
+        for(int i=0; i < strings.length; i++)
+            addr[i] = new InternetAddress(strings[i]);
+        return addr;
+    }
+
+    private String[] cutAddresses(String addresses) {
+        List<String> ls = Arrays.asList(addresses.split("[,;]"));
+        return ls.stream().filter(s -> !s.isEmpty())
+                          .map(String::trim)
+                          .toArray(String[]::new);
+    }
+
+    private List<String> checkAddressErrors(String addr) {
+        String[] addresses = cutAddresses(addr);
+        List<String> errors = new ArrayList<>(addresses.length);
+        for (String s : addresses) {
+            try {
+                new InternetAddress(s).validate();
+            } catch (AddressException ex) {
+                errors.add("There is an error in the email address \"" + s + "\"");
+            }
+        }
+        return errors;
     }
 }
