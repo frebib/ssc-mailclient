@@ -8,6 +8,8 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.util.Observable;
+import java.util.Observer;
 
 public class MailClientView extends JPanel implements ListSelectionListener {
     private JSplitPane splitPane;
@@ -23,15 +25,10 @@ public class MailClientView extends JPanel implements ListSelectionListener {
 
     public MailClientView(Mailbox mailbox) {
         super();
-
         this.mailbox = mailbox;
         init();
 
-
-        new Worker<Email[]>()
-                .todo(() -> mailbox.getMessages("inbox"))
-                .onComplete(e -> listModel.add(e))
-                .start();
+        mailbox.addObserver(listModel);
     }
 
     private void init() {
@@ -52,6 +49,7 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         rightScroll.setBorder(BorderFactory.createEmptyBorder(8, 2, 8, 8));
 
         splitPane = new JSplitPane();
+        splitPane.setResizeWeight(0.15);
         splitPane.setLeftComponent(leftScroll);
         splitPane.setRightComponent(rightScroll);
 

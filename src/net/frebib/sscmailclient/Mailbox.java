@@ -2,6 +2,7 @@ package net.frebib.sscmailclient;
 
 import javax.mail.*;
 import java.util.Observable;
+import java.util.Observer;
 
 public class Mailbox extends Observable {
     private MailProvider mail;
@@ -9,7 +10,6 @@ public class Mailbox extends Observable {
 
     private Session sendSession;
     private Store store;
-    private Email[] emails;
 
     private Transport transport;
 
@@ -43,6 +43,11 @@ public class Mailbox extends Observable {
         return null;
     }
 
+    public void fetchMessages(String path) {
+        setChanged();
+        notifyObservers(getMessages(path));
+    }
+
     public Email[] getMessages(String path) {
         try {
             Folder folder = getFolder(path);
@@ -50,7 +55,7 @@ public class Mailbox extends Observable {
                 folder.open(Folder.READ_WRITE);
 
             Message[] msgs = folder.getMessages();
-            emails = new Email[msgs.length];
+            Email[] emails = new Email[msgs.length];
             for (int i = 0; i < msgs.length; i++)
                 emails[i] = new Email(msgs[i]);
 

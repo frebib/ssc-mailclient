@@ -4,8 +4,9 @@ import net.frebib.sscmailclient.gui.MailClientFrame;
 import net.frebib.sscmailclient.gui.MailClientView;
 import net.frebib.sscmailclient.gui.ThreadedJFrame;
 import net.frebib.util.Log;
+import net.frebib.util.task.Worker;
 
-import javax.mail.MessagingException;
+import javax.swing.*;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -36,20 +37,23 @@ public class MailClient {
         }
 
         mailbox = new Mailbox(new IMAPProvider(acc1), new SMTPProvider(acc1));
-        try {
-            mailbox.connect();
+        view = new MailClientView(mailbox);
+        frame = new MailClientFrame("JavaMail Client", view, mailbox);
+        frameThread = new ThreadedJFrame(frame, "FrameThread");
 
-            view = new MailClientView(mailbox);
-            frame = new MailClientFrame("JavaMail Client", view, mailbox);
-            frameThread = new ThreadedJFrame(frame, "FrameThread");
+        new Worker<>()
+                .todo(() -> mailbox.connect())
+                .error(LOG::exception)
+                .done(n -> {
+                    LOG.info("Mailbox connected");
 
-            // Do stuff and things
-            frameThread.setVisible(true);
+                    new Worker<Email[]>()
+                            .todo(() -> mailbox.fetchMessages("inbox"))
+                            .start();
+                }).start();
 
-
-        } catch (MessagingException e) {
-            LOG.exception(e);
-        }
+        // Do stuff and things
+        frameThread.setVisible(true);
     }
 
     public static void main(String[] args) {

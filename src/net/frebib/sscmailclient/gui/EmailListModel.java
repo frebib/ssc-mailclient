@@ -5,13 +5,10 @@ import net.frebib.sscmailclient.MailClient;
 
 import javax.mail.MessagingException;
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
+import java.util.*;
 
 
-public class EmailListModel extends AbstractListModel<Email> implements Comparator<Email> {
+public class EmailListModel extends AbstractListModel<Email> implements Comparator<Email>, Observer {
     private ArrayList<Email> emails;
 
     public EmailListModel() {
@@ -63,5 +60,11 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
             return Boolean.compare(r3, r4);
 
         return e2.getReceivedDate().compareTo(e1.getReceivedDate());
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        clear();
+        add((Email[]) arg);
     }
 }
