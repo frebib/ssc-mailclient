@@ -31,10 +31,10 @@ public class MailClientFrame extends JFrame {
         c.fill = GridBagConstraints.BOTH;
         add(view, c);
 
-        setLocationRelativeTo(null);
-        setMinimumSize(new Dimension(800, 600));
-        setPreferredSize(new Dimension(800, 600));
+        setMinimumSize(new Dimension(1000, 600));
+        setPreferredSize(getMinimumSize());
         pack();
+        setLocationRelativeTo(null);
     }
 
     private class MailClientControls extends JPanel {
