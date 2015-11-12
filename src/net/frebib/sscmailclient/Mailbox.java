@@ -1,12 +1,12 @@
 package net.frebib.sscmailclient;
 
 import net.frebib.util.task.Worker;
-import sun.misc.resources.Messages;
 
 import javax.mail.*;
-import java.io.IOException;
+import javax.mail.search.BodyTerm;
+import javax.mail.search.HeaderTerm;
+import javax.mail.search.OrTerm;
 import java.util.ArrayList;
-import java.util.IllformedLocaleException;
 import java.util.List;
 import java.util.Observable;
 
@@ -73,7 +73,7 @@ public class Mailbox extends Observable {
     public void reloadFolder(Folder f) {
         try {
             setChanged();
-            notifyObservers(getMessages(f.expunge()));
+            notifyObservers(convertToEmail(f.expunge()));
         } catch (MessagingException e) {
             MailClient.LOG.exception(e);
         }
@@ -100,13 +100,13 @@ public class Mailbox extends Observable {
 
     public Email[] getMessages(Folder folder) {
         try {
-            return getMessages(folder.getMessages());
+            return convertToEmail(folder.getMessages());
         } catch (MessagingException e) {
             MailClient.LOG.exception(e);
         }
         return null;
     }
-    public Email[] getMessages(Message[] msgs) {
+    public Email[] convertToEmail(Message[] msgs) {
         Email[] emails = new Email[msgs.length];
         for (int i = 0; i < msgs.length; i++)
             emails[i] = new Email(msgs[i]);
@@ -122,6 +122,21 @@ public class Mailbox extends Observable {
             MailClient.LOG.exception(e);
         }
         return null;
+    }
+
+    public void searchIn(Folder folder, String term) {
+        try {
+            Email[] mail = null;
+            if (term.isEmpty())
+                mail = getMessages(folder);
+            else
+                mail = convertToEmail(folder.search(new OrTerm(
+                        new BodyTerm(term), new HeaderTerm("*", term))));
+            setChanged();
+            notifyObservers(mail);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
     }
 
     public void send(UnsentEmail email) {

@@ -4,6 +4,8 @@ import net.frebib.sscmailclient.Mailbox;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 public class MailClientFrame extends JFrame {
     private MailClientView view;
@@ -54,6 +56,24 @@ public class MailClientFrame extends JFrame {
             btnReload.addActionListener(e -> mailbox.reloadFolder(mailbox.getCurrent()));
 
             txtSearch = new JTextFieldHint("Search");
+            txtSearch.addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                }
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER)
+                        mailbox.searchIn(mailbox.getCurrent(), txtSearch.getText());
+                    else if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                        mailbox.searchIn(mailbox.getCurrent(), "");
+                        txtSearch.setText("");
+                        txtSearch.getParent().requestFocus();
+                    }
+                }
+                @Override
+                public void keyReleased(KeyEvent e) {
+                }
+            });
 
             setBorder(BorderFactory.createEmptyBorder(12, 8, 2, 8));
             setLayout(new GridBagLayout());
