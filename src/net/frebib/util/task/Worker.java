@@ -4,18 +4,23 @@ public class Worker<E> {
     private boolean cancelled, complete;
     private Thread thread;
     private Task<E> task;
+    private DoTask dotask;
     private Completion<E> done;
     private Progress prog;
     private Throwable error;
 
     public Worker(Task<E> task) {
         this();
-        todo(task);
+        get(task);
     }
     public Worker() {
         thread = new Thread(() -> {
             try {
-                E e = task.job();
+                E e = null;
+                if (task != null)
+                    e = task.get();
+                else
+                    dotask.job();
                 if (!cancelled && done != null)
                     done.onComplete(e);
                 complete = true;
@@ -30,21 +35,25 @@ public class Worker<E> {
         });
     }
 
-    public Worker<E> todo(Task<E> task) {
+    public Worker<E> get(Task<E> task) {
         this.task = task;
         return this;
     }
-    public Worker<E> onComplete(Completion<E> done) {
+    public Worker<E> todo(DoTask task) {
+        this.dotask = task;
+        return this;
+    }
+    public Worker<E> done(Completion<E> done) {
         this.done = done;
         return this;
     }
 
-    public Worker<E> onError(Throwable error) {
+    public Worker<E> error(Throwable error) {
         this.error = error;
         return this;
     }
 
-    public Worker<E> onProgress(Progress prog) {
+    public Worker<E> progress(Progress prog) {
         this.prog = prog;
         return this;
     }
