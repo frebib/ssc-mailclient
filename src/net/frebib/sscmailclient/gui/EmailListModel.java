@@ -1,6 +1,8 @@
 package net.frebib.sscmailclient.gui;
 
 import net.frebib.sscmailclient.Email;
+import net.frebib.sscmailclient.MailClient;
+import net.frebib.util.IndexedTreeSet;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
@@ -9,15 +11,20 @@ import java.util.*;
 
 
 public class EmailListModel extends AbstractListModel<Email> implements Comparator<Email>, Observer {
-    private ArrayList<Email> emails;
+    private IndexedTreeSet<Email> emails;
 
     public EmailListModel() {
-        emails = new ArrayList<>();
+        emails = new IndexedTreeSet<>(this);
     }
 
-    public void add(Email... email) {
-        Collections.addAll(emails, email);
-        Collections.sort(emails, this);
+    public void add(Email e) {
+        e.addObserver(this);
+        emails.add(e);
+        fireContentsChanged(this, 0, emails.size());
+    }
+    public void add(Email... em) {
+        List<Email> ems = Arrays.asList(em);
+        this.emails.addAll(ems);
         fireContentsChanged(this, 0, emails.size());
     }
     public void update() {
@@ -31,7 +38,6 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     }
     public void updateAt(int i, int j) {
         fireContentsChanged(this, i, j);
-        Collections.sort(emails, this);
     }
     public void clear() {
         emails.clear();
