@@ -1,10 +1,12 @@
 package net.frebib.sscmailclient;
 
+import net.frebib.util.task.Progress;
 import net.frebib.util.task.Worker;
 
 import javax.mail.*;
 import javax.mail.search.BodyTerm;
 import javax.mail.search.HeaderTerm;
+import javax.mail.search.MessageIDTerm;
 import javax.mail.search.OrTerm;
 import java.util.ArrayList;
 import java.util.List;
@@ -73,42 +75,46 @@ public class Mailbox extends Observable {
     public void reloadFolder(Folder f) {
         String name = f.getFullName();
         closeFolder(f);
-        fetchMessages(name);
+        fetchMessages(name, null);
     }
 
-    public void fetchMessages(String path) {
+    public void fetchMessages(String path, Progress p) {
         setChanged();
-        notifyObservers(getMessages(path));
+        Message[] mails = getMessages(path);
+        for (int i = 0; i < mails.length; i++) {
+            setChanged();
+            notifyObservers(new Email(mails[i]));
+            p.onProgress(i + 1, mails.length);
+        }
     }
 
-    public Email[] getMessages(String path) {
+    public Message[] getMessages(String path) {
+        return getMessages(getFolder(path));
+    }
+    public Message[] getMessages(Folder folder) {
         try {
-            Folder folder = getFolder(path);
             if (!folder.isOpen())
                 folder.open(Folder.READ_WRITE);
             if (!openFolders.contains(folder))
                 openFolders.add(folder);
-            return getMessages(folder);
+            return folder.getMessages();
         } catch (Exception e) {
             MailClient.LOG.exception(e);
         }
         return null;
     }
-
-    public Email[] getMessages(Folder folder) {
-        try {
-            return convertToEmail(folder.getMessages());
-        } catch (MessagingException e) {
-            MailClient.LOG.exception(e);
-        }
-        return null;
+    public Email[] getEmails(Folder folder) {
+        return convertToEmail(getMessages(folder), null);
     }
-    public Email[] convertToEmail(Message[] msgs) {
-        Email[] emails = new Email[msgs.length];
-        for (int i = 0; i < msgs.length; i++)
-            emails[i] = new Email(msgs[i]);
 
-        return emails;
+    public Email[] convertToEmail(Message[] msgs, Progress p) {
+        Email[] emails = new Email[msgs.length];
+        for (int i = 0; i < msgs.length; i++) {
+            emails[i] = new Email(msgs[i]);
+            if (p != null)
+                p.onProgress(i, emails.length);
+        }
+            return emails;
     }
 
     public Folder[] getFolderList() {
@@ -125,10 +131,10 @@ public class Mailbox extends Observable {
         try {
             Email[] mail = null;
             if (term.isEmpty())
-                mail = getMessages(folder);
+                mail = getEmails(folder);
             else
                 mail = convertToEmail(folder.search(new OrTerm(
-                        new BodyTerm(term), new HeaderTerm("*", term))));
+                        new BodyTerm(term), new HeaderTerm("*", term))), null);
             setChanged();
             notifyObservers(mail);
         } catch (MessagingException e) {
@@ -138,21 +144,18 @@ public class Mailbox extends Observable {
 
     public void send(UnsentEmail email) {
         new Worker<>()
-            .todo(() -> {
+            .todo((d, p) -> {
                 if (send != null && (transport == null || sendSession == null)) {
                     transport = send.connect();
                     sendSession = send.getSession();
                     if (transport != null & transport.isConnected())
                         MailClient.LOG.fine("Send connected");
-                }
-            }).done(n -> {
-                try {
+
                     Message msg = email.prepare(sendSession);
                     MailClient.LOG.info("Sending email: " + msg.getSubject());
                     transport.sendMessage(msg, msg.getAllRecipients());
-                } catch (Exception e) {
-                    MailClient.LOG.exception(e);
                 }
-            }).start();
+            }).error(MailClient.LOG::exception)
+            .start();
     }
 }

@@ -1,5 +1,5 @@
 package net.frebib.util.task;
 
 public interface Task<E> {
-    E get(Progress prog) throws Exception;
+    void todo(Completion<E> done, Progress prog) throws Exception;
 }

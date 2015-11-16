@@ -86,8 +86,14 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
 
     @Override
     public void update(Observable o, Object arg) {
-        clear();
-        if (arg != null)
+        if (arg == null)
+            return;
+
+        if (arg instanceof Email)
+            add((Email) arg);
+        else if (arg instanceof Email[])
             add((Email[]) arg);
+        else
+            MailClient.LOG.info("Unexpected type on update... :" + arg.toString());
     }
 }

@@ -43,14 +43,15 @@ public class MailClient {
 
         // Open incoming mailbox connection
         new Worker<>()
-                .todo(p -> mailbox.connect())
+            .todo((d, p) -> mailbox.connect())
                 .error(LOG::exception)
                 .done(n -> {
                     LOG.info("Mailbox connected");
 
                     // Fetch emails in inbox
                     new Worker<Email[]>()
-                            .todo(p -> mailbox.fetchMessages("inbox", p))
+                            .todo((d, p) -> mailbox.fetchMessages("inbox", p))
+                            .progress((p, m) -> System.out.println(p + "/" + m))
                             .start();
                 }).start();
 
