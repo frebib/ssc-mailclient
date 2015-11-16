@@ -45,7 +45,7 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     public void remove(Email e) {
         int i = emails.indexOf(e);
         emails.remove(e);
-        fireContentsChanged(this, i, i);
+        fireContentsChanged(this, i - 1, i + 1);
     }
     public void remove(int i) {
         emails.remove(i);
