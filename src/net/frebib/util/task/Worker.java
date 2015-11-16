@@ -18,9 +18,9 @@ public class Worker<E> {
             try {
                 E e = null;
                 if (task != null)
-                    e = task.get();
+                    e = task.get(prog);
                 else
-                    dotask.job();
+                    dotask.job(prog);
                 if (!cancelled && done != null)
                     done.onComplete(e);
                 complete = true;
@@ -56,11 +56,6 @@ public class Worker<E> {
     public Worker<E> progress(Progress prog) {
         this.prog = prog;
         return this;
-    }
-
-    public void setProgress(int progress) {
-        if (prog != null)
-            prog.onProgress(progress);
     }
 
     public Worker<E> start() {
