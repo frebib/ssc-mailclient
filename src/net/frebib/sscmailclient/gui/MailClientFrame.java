@@ -55,7 +55,7 @@ public class MailClientFrame extends JFrame {
             });
             btnReload = new JButton("↻");
             btnReload.addActionListener(e -> {
-                new Worker<>().todo(() -> {
+                new Worker<>().todo(p -> {
                     view.listModel.clear();
                     mailbox.reloadFolder(mailbox.getCurrent());
                 }).start();
