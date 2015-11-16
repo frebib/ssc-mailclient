@@ -7,6 +7,9 @@ import net.frebib.util.Log;
 import net.frebib.util.task.Worker;
 
 import javax.mail.MessagingException;
+import javax.swing.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -18,7 +21,6 @@ public class MailClient {
             new SimpleDateFormat("'log/mailclient'yyyy-MM-dd hh-mm-ss'.log'")
             .format(new Date()));
 
-    private ThreadedJFrame frameThread;
     private MailClientView view;
     private MailClientFrame frame;
 
@@ -39,7 +41,6 @@ public class MailClient {
         mailbox = new Mailbox(new IMAPProvider(acc1), new SMTPProvider(acc1));
         view = new MailClientView(mailbox);
         frame = new MailClientFrame("JavaMail Client", view, mailbox);
-        frameThread = new ThreadedJFrame(frame, "FrameThread");
 
         // Open incoming mailbox connection
         new Worker<>()
@@ -56,7 +57,19 @@ public class MailClient {
                 }).start();
 
         // Start the window thread
-        frameThread.setVisible(true);
+        frame.setVisible(true);
+        frame.addWindowListener(new WindowListener() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                System.exit(0);
+            }
+            public void windowOpened(WindowEvent e) { }
+            public void windowClosed(WindowEvent e) { }
+            public void windowIconified(WindowEvent e) { }
+            public void windowDeiconified(WindowEvent e) { }
+            public void windowActivated(WindowEvent e) { }
+            public void windowDeactivated(WindowEvent e) { }
+        });
     }
 
     /**
