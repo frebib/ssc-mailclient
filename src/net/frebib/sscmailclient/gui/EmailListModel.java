@@ -10,15 +10,20 @@ import java.util.*;
 
 public class EmailListModel extends AbstractListModel<Email> implements Comparator<Email>, Observer {
     private IndexedTreeSet<Email> emails;
+    private JList<Email> emailList;
 
-    public EmailListModel() {
+    public EmailListModel(JList<Email> emailList) {
+        this.emailList = emailList;
+
         emails = new IndexedTreeSet<>(this);
     }
 
     public void add(Email e) {
         e.addObserver(this);
+        Email sel = emailList.getSelectedValue();
         emails.add(e);
         fireContentsChanged(this, 0, emails.size());
+        emailList.setSelectedValue(sel, false);
     }
     public void add(Email... em) {
         List<Email> ems = Arrays.asList(em);

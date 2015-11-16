@@ -34,9 +34,9 @@ public class MailClientView extends JPanel implements ListSelectionListener {
     }
 
     private void init() {
-        listModel = new EmailListModel();
-
         emailList = new JList<>();
+        listModel = new EmailListModel(emailList);
+
         emailList.addListSelectionListener(this);
         emailList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         emailList.setModel(listModel);
