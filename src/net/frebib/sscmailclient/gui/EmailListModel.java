@@ -57,6 +57,9 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
 
     @Override
     public int compare(Email e1, Email e2) {
+        if (e1 == null || e2 == null)
+            return 0;
+
         boolean r1 = e1.isRead(),
                 r2 = e2.isRead(),
                 r3 = e1.isRecent(),
@@ -68,12 +71,16 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
         if (r3 ^ r4)
             return Boolean.compare(r3, r4);
 
+        if (e1.getReceivedDate() == null || e2.getReceivedDate() == null)
+            return 0;
+
         return e2.getReceivedDate().compareTo(e1.getReceivedDate());
     }
 
     @Override
     public void update(Observable o, Object arg) {
         clear();
-        add((Email[]) arg);
+        if (arg != null)
+            add((Email[]) arg);
     }
 }
