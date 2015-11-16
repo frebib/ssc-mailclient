@@ -84,7 +84,9 @@ public class Mailbox extends Observable {
         for (int i = 0; i < mails.length; i++) {
             setChanged();
             notifyObservers(new Email(mails[i]));
-            p.onProgress(i + 1, mails.length);
+
+            if (p != null)
+                p.onProgress(i + 1, mails.length);
         }
     }
 
