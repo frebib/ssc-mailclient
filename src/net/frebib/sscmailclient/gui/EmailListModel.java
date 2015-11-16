@@ -24,6 +24,7 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     }
     public void add(Email... em) {
         List<Email> ems = Arrays.asList(em);
+        ems.stream().forEach(el -> el.addObserver(this));
         this.emails.addAll(ems);
         fireContentsChanged(this, 0, emails.size());
     }

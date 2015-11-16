@@ -4,8 +4,9 @@ import javax.mail.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Observable;
 
-public class Email {
+public class Email extends Observable {
     private Address from;
     private Address[] to;
     private String subject;
@@ -83,6 +84,8 @@ public class Email {
             flags.add(flag);
         if (!value && flags.contains(flag))
             flags.remove(flag);
+        setChanged();
+        notifyObservers();
     }
 
     public boolean hasCustomFlag(CustomFlag flag) {
@@ -103,6 +106,8 @@ public class Email {
         } catch (MessagingException e) {
             MailClient.LOG.exception(e);
         }
+        setChanged();
+        notifyObservers();
     }
 
     private Content getContent(Part part) {
