@@ -129,7 +129,7 @@ public class Mailbox extends Observable {
 
     public void searchIn(Folder folder, String term) {
         try {
-            Email[] mail = null;
+            Email[] mail;
             if (term.isEmpty())
                 mail = getEmails(folder);
             else
