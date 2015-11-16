@@ -1,5 +1,7 @@
 package net.frebib.sscmailclient;
 
+import net.frebib.util.task.Worker;
+
 import javax.mail.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -100,14 +102,14 @@ public class Email extends Observable {
     }
 
     private void setFlag(Flags.Flag flag, boolean value) {
-        try {
-            msg.setFlag(flag, value);
-            msg.getFolder().expunge();
-        } catch (MessagingException e) {
-            MailClient.LOG.exception(e);
-        }
-        setChanged();
-        notifyObservers();
+        new Worker<>()
+            .todo((c, p) -> {
+                msg.setFlag(flag, value);
+                msg.getFolder().expunge();
+            }).done(e -> {
+                setChanged();
+                notifyObservers();
+            }).error(e ->  MailClient.LOG.exception(e));
     }
 
     private Content getContent(Part part) {
