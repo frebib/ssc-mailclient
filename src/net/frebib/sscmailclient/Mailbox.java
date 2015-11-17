@@ -79,8 +79,22 @@ public class Mailbox extends Observable {
     }
 
     public void fetchMessages(String path, Progress p) {
+        fetchMessages(getFolder(path), p);
+    }
+    public void fetchMessages(Progress p) {
+        fetchMessages(getCurrent(), p);
+    }
+    public void fetchMessages(Folder f, Progress p) {
+        try {
+            if (!f.isOpen())
+                f.open(Folder.READ_WRITE);
+            fetchMessages(f.getMessages(), p);
+        } catch (MessagingException e) {
+            MailClient.LOG.exception(e);
+        }
+    }
+    public void fetchMessages(Message[] mails, Progress p) {
         setChanged();
-        Message[] mails = getMessages(path);
         for (int i = 0; i < mails.length; i++) {
             setChanged();
             notifyObservers(new Email(mails[i]));
