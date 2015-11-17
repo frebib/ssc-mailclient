@@ -109,7 +109,7 @@ public class Email extends Observable {
             }).done(e -> {
                 setChanged();
                 notifyObservers();
-            }).error(e ->  MailClient.LOG.exception(e));
+            }).error(MailClient.LOG::exception);
     }
 
     private Content getContent(Part part) {
