@@ -45,7 +45,8 @@ public class Mailbox extends Observable {
 
     public void close() throws MessagingException {
         for (Folder f : folders)
-            f.close(true);
+            if (f.isOpen())
+                f.close(true);
         if (store != null)
             store.close();
         if (transport != null)
