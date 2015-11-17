@@ -17,7 +17,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 public class MailClient {
-    public static final Log LOG = new Log(Level.FINER).setLogOutput(
+    public static final Log LOG = new Log(Level.FINEST).setLogOutput(
             new SimpleDateFormat("'log/mailclient'yyyy-MM-dd hh-mm-ss'.log'")
             .format(new Date()));
 
@@ -52,7 +52,7 @@ public class MailClient {
                     // Fetch emails in inbox
                     new Worker<Email[]>()
                             .todo((d, p) -> mailbox.fetchMessages("inbox", p))
-                            .progress((p, m) -> System.out.println(p + "/" + m))
+                            .progress((p, m) -> LOG.finest("Loading " + p + "/" + m))
                             .start();
                 }).start();
 
