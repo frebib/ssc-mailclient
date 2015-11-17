@@ -89,6 +89,7 @@ public class MailClientFrame extends JFrame {
             c.gridy = 0;
             c.weightx = 0;
             c.weighty = 1;
+            c.ipadx = 6;
             c.fill = GridBagConstraints.BOTH;
             c.anchor = GridBagConstraints.LINE_START;
             add(btnReload, c);
