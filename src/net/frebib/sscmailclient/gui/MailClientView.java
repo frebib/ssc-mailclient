@@ -123,11 +123,12 @@ public class MailClientView extends JPanel implements ListSelectionListener {
             }
             rightClickMenu.add(subm);
         }
+        // Right click menu handlers
         private void reply(Email e) {
-
+            // TODO: Load compose form with reply
         }
         private void forward(Email e) {
-
+            // TODO: Load compose form with forward
         }
         private void markAsUnread(Email e) {
             e.setRead(false);
