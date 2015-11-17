@@ -131,6 +131,8 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         }
         private void markAsUnread(Email e) {
             e.setRead(false);
+            emailList.clearSelection();
+            emailPreview.setText("");
             listModel.updateElem(e);
         }
         private void flags(Email e, Email.CustomFlag flag) {
