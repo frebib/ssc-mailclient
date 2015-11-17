@@ -69,7 +69,6 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         Email em = emailList.getSelectedValue();
         em.setRead(true);
         listModel.updateElem(em);
-        emailList.setSelectedValue(em, true);
 
         if (grabbing != null && !em.equals(grabbing))
             if (emailGrabber != null && !emailGrabber.isComplete())
@@ -94,7 +93,7 @@ public class MailClientView extends JPanel implements ListSelectionListener {
             if (e.isPopupTrigger()) {
                 Email em = listModel.getElementAt(emailList.locationToIndex(e.getPoint()));
                 initMenu(em);
-                emailList.setSelectedValue(em, true);
+                emailList.setSelectedValue(em, false);
                 rightClickMenu.show(emailList, e.getX(), e.getY());
             }
         }
