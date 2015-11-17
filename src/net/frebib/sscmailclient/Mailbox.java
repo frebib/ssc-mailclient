@@ -6,9 +6,9 @@ import net.frebib.util.task.Worker;
 import javax.mail.*;
 import javax.mail.search.BodyTerm;
 import javax.mail.search.HeaderTerm;
-import javax.mail.search.MessageIDTerm;
 import javax.mail.search.OrTerm;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Observable;
 
@@ -21,7 +21,7 @@ public class Mailbox extends Observable {
 
     private Transport transport;
 
-    private List<Folder> openFolders;
+    private List<Folder> folders;
     private Folder current;
 
     public Mailbox(MailProvider mail, SendProvider send) {
@@ -30,18 +30,21 @@ public class Mailbox extends Observable {
         this.mail = mail;
         this.send = send;
 
-        this.openFolders = new ArrayList<>();
+        this.folders = new ArrayList<>();
     }
 
-    public void connect() throws MessagingException {
+    public void connect() throws Exception {
         if (mail != null)
             store = mail.connect();
         if (store != null && store.isConnected())
             MailClient.LOG.fine("Mail connected");
+
+        MailClient.LOG.finer("Loading default folder");
+        folders = Arrays.asList(store.getDefaultFolder().list());
     }
 
     public void close() throws MessagingException {
-        for (Folder f : openFolders)
+        for (Folder f : folders)
             f.close(true);
         if (store != null)
             store.close();
@@ -55,7 +58,12 @@ public class Mailbox extends Observable {
     public Folder getFolder(String path) {
         try {
             MailClient.LOG.finer("Loading folder \"" + path + "\"");
-            current = store.getFolder(path);
+            for (Folder f : folders)
+                if (f.getName().toLowerCase().equals(path.toLowerCase())) {
+                    System.out.println(path.toLowerCase());
+                    current = f;
+                    break;
+                }
             return current;
         } catch (Exception e) {
             MailClient.LOG.exception(e);
@@ -64,7 +72,6 @@ public class Mailbox extends Observable {
     }
     public void closeFolder(Folder f) {
         try {
-            openFolders.remove(f);
             f.close(true);
             current = null;
         } catch (MessagingException e) {
@@ -111,8 +118,6 @@ public class Mailbox extends Observable {
         try {
             if (!folder.isOpen())
                 folder.open(Folder.READ_WRITE);
-            if (!openFolders.contains(folder))
-                openFolders.add(folder);
             return folder.getMessages();
         } catch (Exception e) {
             MailClient.LOG.exception(e);
@@ -133,10 +138,9 @@ public class Mailbox extends Observable {
             return emails;
     }
 
-    public Folder[] getFolderList() {
+    public List<Folder> getFolderList() {
         try {
-            MailClient.LOG.finer("Loading default folder");
-            return store.getDefaultFolder().list();
+            return folders;
         } catch (Exception e) {
             MailClient.LOG.exception(e);
         }

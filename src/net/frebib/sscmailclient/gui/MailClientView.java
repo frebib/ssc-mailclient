@@ -15,7 +15,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Arrays;
+import java.util.List;
 
 public class MailClientView extends JPanel implements ListSelectionListener, ItemListener {
     private JList<Email> emailList;
@@ -88,9 +88,9 @@ public class MailClientView extends JPanel implements ListSelectionListener, Ite
         add(splitPane, BorderLayout.CENTER);
     }
 
-    public void setFolders(Folder[] folders) {
+    public void setFolders(List<Folder> folders) {
         if (folders != null)
-            Arrays.asList(folders).stream().forEach(cmbFolder::addItem);
+            folders.stream().forEach(cmbFolder::addItem);
     }
     public void setCurrent(Folder current) {
         cmbFolder.setSelectedItem(current);
