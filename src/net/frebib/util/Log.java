@@ -55,7 +55,9 @@ public class Log implements Thread.UncaughtExceptionHandler {
     }
 
     private String addThreadName(String msg) {
-        return "[" + Thread.currentThread().getName() + "]\t> " + msg;
+        StackTraceElement el = Thread.currentThread().getStackTrace()[0];
+        String caller = el.getFileName() + " at line " + el.getLineNumber();
+        return "[" + Thread.currentThread().getName() + "]\t[" + caller + "]\t> " + msg;
     }
 
     public void finest(String msg) { logger.finest(addThreadName(msg)); }
