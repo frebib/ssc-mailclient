@@ -12,6 +12,10 @@ public class Worker<E> {
         this();
         todo(task);
     }
+    public Worker(String name) {
+        this();
+        thread.setName(name);
+    }
     public Worker() {
         thread = new Thread(() -> {
             try {
