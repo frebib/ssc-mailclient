@@ -99,6 +99,8 @@ public class MailClientView extends JPanel implements ListSelectionListener, Ite
     @Override
     public void valueChanged(ListSelectionEvent e) {
         Email em = emailList.getSelectedValue();
+        if (em == null)
+            return;
         em.setRead(true);
         listModel.updateElem(em);
 
