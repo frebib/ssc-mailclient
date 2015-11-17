@@ -74,8 +74,9 @@ public class MailClientView extends JPanel implements ListSelectionListener {
             if (emailGrabber != null && !emailGrabber.isComplete())
                 emailGrabber.cancel();
 
+        grabbing = emailList.getSelectedValue();
         emailGrabber = new Worker<String>()
-                .todo((c, p) -> c.onComplete(emailList.getSelectedValue().getBody()))
+                .todo((c, p) -> c.onComplete(grabbing.getBody()))
                 .done(s -> emailPreview.setText(s))
                 .start();
     }
