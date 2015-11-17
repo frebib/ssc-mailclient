@@ -44,8 +44,8 @@ public class MailClient {
 
         // Open incoming mailbox connection
         new Worker<>()
-            .todo((d, p) -> mailbox.connect())
                 .error(LOG::exception)
+                .todo((d, p) -> mailbox.connect())
                 .done(n -> {
                     LOG.info("Mailbox connected");
 
