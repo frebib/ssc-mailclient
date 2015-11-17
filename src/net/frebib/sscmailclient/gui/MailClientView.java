@@ -90,7 +90,7 @@ public class MailClientView extends JPanel implements ListSelectionListener, Ite
 
     public void setFolders(Folder[] folders) {
         if (folders != null)
-            Arrays.asList(mailbox.getFolderList()).stream().forEach(cmbFolder::addItem);
+            Arrays.asList(folders).stream().forEach(cmbFolder::addItem);
     }
     public void setCurrent(Folder current) {
         cmbFolder.setSelectedItem(current);
