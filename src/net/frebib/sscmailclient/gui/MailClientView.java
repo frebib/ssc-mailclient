@@ -1,22 +1,27 @@
 package net.frebib.sscmailclient.gui;
 
+import com.sun.mail.imap.IMAPFolder;
+import com.sun.mail.pop3.POP3Folder;
 import net.frebib.sscmailclient.Email;
 import net.frebib.sscmailclient.Mailbox;
 import net.frebib.util.task.Worker;
 
+import javax.mail.Folder;
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import java.awt.*;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Arrays;
 
-public class MailClientView extends JPanel implements ListSelectionListener {
-    private JSplitPane splitPane;
+public class MailClientView extends JPanel implements ListSelectionListener, ItemListener {
     private JList<Email> emailList;
     public EmailListModel listModel;
     private JTextArea emailPreview;
-    private JScrollPane leftScroll, rightScroll;
+    private JComboBox<Folder> cmbFolder;
 
     private JPopupMenu rightClickMenu;
 
@@ -42,19 +47,38 @@ public class MailClientView extends JPanel implements ListSelectionListener {
         emailList.setModel(listModel);
         emailList.setCellRenderer(new EmailCellRenderer());
 
-        leftScroll = new JScrollPane(emailList);
-        leftScroll.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 2));
+        JPanel topPane = new JPanel(new BorderLayout());
+        JPanel leftPane = new JPanel(new BorderLayout());
+        cmbFolder = new JComboBox<>();
+        cmbFolder.addItemListener(this);
+        topPane.add(cmbFolder, BorderLayout.CENTER);
+        topPane.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+
+        JButton btnReload = new JButton("↻");
+        btnReload.addActionListener(e -> {
+            new Worker<>()
+                    .todo((d, p) -> {
+                        listModel.clear();
+                        mailbox.reloadFolder(mailbox.getCurrent());
+                    }).start();
+        });
+        topPane.add(btnReload, BorderLayout.EAST);
+
+        JScrollPane leftScroll = new JScrollPane(emailList);
         leftScroll.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+        leftPane.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 2));
+        leftPane.add(leftScroll, BorderLayout.CENTER);
+        leftPane.add(topPane, BorderLayout.NORTH);
 
         emailPreview = new JTextArea();
         emailPreview.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         emailPreview.setEditable(false);
-        rightScroll = new JScrollPane(emailPreview);
+        JScrollPane rightScroll = new JScrollPane(emailPreview);
         rightScroll.setBorder(BorderFactory.createEmptyBorder(8, 2, 8, 8));
 
-        splitPane = new JSplitPane();
+        JSplitPane splitPane = new JSplitPane();
         splitPane.setResizeWeight(0.15);
-        splitPane.setLeftComponent(leftScroll);
+        splitPane.setLeftComponent(leftPane);
         splitPane.setRightComponent(rightScroll);
 
         rightClickMenu = new JPopupMenu();
@@ -62,6 +86,14 @@ public class MailClientView extends JPanel implements ListSelectionListener {
 
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
+    }
+
+    public void setFolders(Folder[] folders) {
+        if (folders != null)
+            Arrays.asList(mailbox.getFolderList()).stream().forEach(cmbFolder::addItem);
+    }
+    public void setCurrent(Folder current) {
+        cmbFolder.setSelectedItem(current);
     }
 
     @Override
@@ -79,6 +111,12 @@ public class MailClientView extends JPanel implements ListSelectionListener {
                 .todo((c, p) -> c.onComplete(grabbing.getBody()))
                 .done(s -> emailPreview.setText(s))
                 .start();
+    }
+
+    // On Folder change
+    @Override
+    public void itemStateChanged(ItemEvent e) {
+
     }
 
     private class RightClickHandler extends MouseAdapter {

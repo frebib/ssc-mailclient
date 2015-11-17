@@ -44,7 +44,7 @@ public class MailClientFrame extends JFrame {
     }
 
     private class MailClientControls extends JPanel {
-        private JButton btnReload, btnCompose;
+        private JButton btnFilter, btnCompose;
         private JTextFieldHint txtSearch;
 
         public MailClientControls(Component parent) {
@@ -52,14 +52,6 @@ public class MailClientFrame extends JFrame {
             btnCompose.addActionListener(e -> {
                 composer.setLocationRelativeTo(parent);
                 composer.setVisible(true);
-            });
-            btnReload = new JButton("↻");
-            btnReload.addActionListener(e -> {
-                new Worker<>()
-                .todo((d, p) -> {
-                    view.listModel.clear();
-                    mailbox.reloadFolder(mailbox.getCurrent());
-                }).start();
             });
 
             txtSearch = new JTextFieldHint("Search");
@@ -92,7 +84,6 @@ public class MailClientFrame extends JFrame {
             c.ipadx = 6;
             c.fill = GridBagConstraints.BOTH;
             c.anchor = GridBagConstraints.LINE_START;
-            add(btnReload, c);
             add(btnCompose, c);
 
             c.weightx = 0.8;
