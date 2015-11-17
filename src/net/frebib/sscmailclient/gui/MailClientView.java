@@ -115,10 +115,15 @@ public class MailClientView extends JPanel implements ListSelectionListener, Ite
                 .start();
     }
 
-    // On Folder change
     @Override
     public void itemStateChanged(ItemEvent e) {
+        if (cmbFolder.getSelectedItem() == null)
+            return;
 
+        listModel.clear();
+        new Worker<>("Folder Fetcher")
+                .todo((d, p) -> listModel.add(mailbox.getEmails((Folder) cmbFolder.getSelectedItem())))
+                .start();
     }
 
     private class RightClickHandler extends MouseAdapter {
