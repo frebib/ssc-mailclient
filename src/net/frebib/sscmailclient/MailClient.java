@@ -12,6 +12,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -44,14 +45,19 @@ public class MailClient {
 
         // Open incoming mailbox connection
         new Worker<>()
-                .error(LOG::exception)
                 .todo((d, p) -> mailbox.connect())
+                .error(e -> {
+                    JOptionPane.showMessageDialog(frame, "Exception connecting: " + e.getMessage(), "Error connecting", JOptionPane.ERROR_MESSAGE);
+                    LOG.exception(e);
+                })
                 .done(n -> {
                     LOG.info("Mailbox connected");
+                    view.setFolders(mailbox.getFolderList());
+                    view.setCurrent(mailbox.getFolder("inbox"));
 
                     // Fetch emails in inbox
                     new Worker<Email[]>()
-                            .todo((d, p) -> mailbox.fetchMessages("inbox", p))
+                            .todo((d, p) -> mailbox.fetchMessages(p))
                             .progress((p, m) -> LOG.finest("Loading " + p + "/" + m))
                             .start();
                 }).start();
