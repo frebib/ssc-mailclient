@@ -56,7 +56,7 @@ public class MailClient {
                     view.setCurrent(mailbox.getFolder("inbox"));
 
                     // Fetch emails in inbox
-                    new Worker<Email[]>()
+                    new Worker<Email[]>("Message Fetcher")
                             .todo((d, p) -> mailbox.fetchMessages(p))
                             .progress((p, m) -> LOG.finest("Loading " + p + "/" + m))
                             .start();
