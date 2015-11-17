@@ -20,7 +20,7 @@ public class MailClientFrame extends JFrame {
         super(title);
         this.mailbox = mailbox;
         this.view = view;
-        this.controls = new MailClientControls();
+        this.controls = new MailClientControls(this);
         this.composer = new ComposeFrame(this, mailbox);
 
         setLayout(new GridBagLayout());
@@ -47,10 +47,10 @@ public class MailClientFrame extends JFrame {
         private JButton btnReload, btnCompose;
         private JTextFieldHint txtSearch;
 
-        public MailClientControls() {
+        public MailClientControls(Component parent) {
             btnCompose = new JButton("Compose");
             btnCompose.addActionListener(e -> {
-                composer.setLocationRelativeTo(this);
+                composer.setLocationRelativeTo(parent);
                 composer.setVisible(true);
             });
             btnReload = new JButton("↻");
