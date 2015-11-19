@@ -1,7 +1,5 @@
 package net.frebib.sscmailclient.gui;
 
-import com.sun.mail.imap.IMAPFolder;
-import com.sun.mail.pop3.POP3Folder;
 import net.frebib.sscmailclient.Email;
 import net.frebib.sscmailclient.Mailbox;
 import net.frebib.util.task.Worker;

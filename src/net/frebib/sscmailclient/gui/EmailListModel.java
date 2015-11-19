@@ -19,8 +19,10 @@ public class EmailListModel extends AbstractListModel<Email> implements Comparat
     }
 
     public void add(Email e) {
-        e.addObserver(this);
         Email sel = emailList.getSelectedValue();
+        emails.remove(e);
+        fireContentsChanged(this, 0, emails.size());
+        e.addObserver(this);
         emails.add(e);
         fireContentsChanged(this, 0, emails.size());
         emailList.setSelectedValue(sel, false);
